@@ -1,0 +1,132 @@
+/*
+In NativeScript, the app.css file is where you place CSS rules that
+you would like to apply to your entire application. Check out
+http://docs.nativescript.org/ui/styling for a full list of the CSS
+selectors and properties you can use to style UI components.
+
+/*
+In many cases you may want to use the NativeScript core theme instead
+of writing your own CSS rules. For a full list of class names in the theme
+refer to http://docs.nativescript.org/ui/theme.
+*/
+
+Page {
+  background-color: white;
+  font-size: 15;
+}
+
+/*TextField {
+  padding: 10;
+  font-size: 13;
+}*/
+
+StackLayout {
+  margin-left: 20;
+  margin-right: 20;
+  padding-bottom: 16;
+  background-color: white;
+}
+Image {
+  margin-top: 5;
+  margin-bottom: 20;
+}
+Button, TextField {
+  padding: 10;
+  margin-left: 10;
+  margin-right: 10;
+  margin-bottom: 10;
+  font-size: 16;
+  border-radius: 15px;
+}
+
+Botton:highlighted{
+  background-color: white;
+}
+
+/*Buttons*/
+.location-button {
+  background-color: #515F90;
+  color: white;
+  margin-top: 20;
+}
+
+.contract-button {
+  background-color: #3E7213;
+  color: white;
+  margin-top: 20;
+}
+
+.cancel-button {
+  background-color: #b20000;
+  color: white;
+  margin-top: 20;
+}
+
+.disabled-button {
+  background-color: gray;
+  color: white;
+  margin-top: 20;
+}
+
+
+.title {
+  font-size: 30px;
+  text-align: center;
+  padding: 20;
+}
+.title2 {
+  font-size: 25px;
+  text-align: left;
+  padding-left: 10;
+}
+.title3 {
+  font-size: 20px;
+  text-align: left;
+  padding-left: 20;
+}
+
+.itemList{
+  font-size: 25px;
+  text-align: left;
+  padding: 20;
+}
+.itemList2{
+  font-size: 20px;
+  text-align: left;
+  padding-left: 20;
+}
+
+.small-spacing {
+  margin: 5;
+}
+.medium-spacing {
+  margin: 10;
+}
+
+ActionBar {
+  background-color: black;
+  color: white;
+}
+
+/*Bars*/
+.logout-bar {
+  background-color: black;
+  font-size: 20;
+  color: white;
+  padding: 5 10;
+  /* margin-bottom: 48;  */
+}
+
+/*Icons*/
+.fontAwesome{
+  font-family: 'FontAwesome', 'fontawesome-webfont';
+  /*font-size: 20;*/
+}
+
+.icoMoon{
+  font-family: 'icomoon', 'IcoMoon-Free';
+  /*font-size: 20;*/
+}
+
+@import url("~/platform.css");
+/*@import 'nativescript-theme-core/css/core.light.css';*/

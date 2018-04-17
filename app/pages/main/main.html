@@ -1,0 +1,37 @@
+<ActionBar title="Surtrade" class="action-bar"></ActionBar>
+<GridLayout rows="auto, *, auto" columns="*">
+<!--<StackLayout>-->
+  
+  <GridLayout [visibility]="hasContract ? 'visible' : 'collapsed'" row="0" columns="*, auto" class="active-contract-bar">
+    <!--<Label text="Active contract" col="0"></Label>-->
+    <Label text="Active contract" col="0"></Label>
+    <Label text="&#xf085;" class="fontAwesome" (tap)="contractSettings()" col="1"></Label>
+    <!--<Image src="res://gear"  col="1"></Image>-->
+  </GridLayout>
+  <GridLayout row="1">
+    <StackLayout>
+      <Label [text]="title" class="title"></Label>
+      <!-- <Button text="Update Location DB" [isEnabled]="isBusy ? 'false' : 'true'" [class]="isBusy ? 'disabled-button' : 'location-button'" (tap)="updateLocationDatabase()"></Button>
+      <Button text="Show Locations in DB" [isEnabled]="isBusy ? 'false' : 'true'" [class]="isBusy ? 'disabled-button' : 'location-button'" (tap)="showLocationsInDatabase()"></Button> -->
+    
+      <Button [visibility]="canContract ? 'visible' : 'collapsed'" text="Create Contract  &#xf2b5;" [class]="isBusy ? 'disabled-button fontAwesome' : 'contract-button fontAwesome'" (tap)="createContract()">
+      </Button>
+      
+    </StackLayout>
+    <!-- <StackLayout>
+      <ListView [items]="currentBeacons" class="list-group">
+          <ng-template let-item="item">
+              <Label [text]="item.id" class="list-group-item"></Label>
+          </ng-template>
+      </ListView>
+    </StackLayout> -->
+  </GridLayout>
+  <GridLayout row="2" class="logout-bar"  columns="*">
+    <!--<Label [text]="logoutIcon" class="fontAwesome" (tap)="logout()" col="0"></Label>-->
+    <Label text="Logout &#xf08b;" class="fontAwesome" (tap)="logout()" horizontalAlignment="right"></Label>
+    
+    <!--<Label text="Logout" col="1"></Label> -->
+  </GridLayout>
+  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="1" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
+<!--</StackLayout>-->
+</GridLayout>

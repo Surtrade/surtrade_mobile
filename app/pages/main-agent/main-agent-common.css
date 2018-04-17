@@ -1,0 +1,20 @@
+.page{
+  margin-top: 60px;
+}
+
+.active-contract-bar {
+  background-color: green;
+  font-size: 20;
+  color: white;
+  padding: 5 10;
+  /*margin: 5;*/
+  /*height: 40px;*/
+  /*vertical-align: center;*/
+}
+
+.active-contract-bar Image {
+  /*height: 20;*/
+  vertical-align:center;
+  margin-left: 10;
+  margin-right: 5;
+}

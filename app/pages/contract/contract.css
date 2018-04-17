@@ -1,0 +1,25 @@
+.form-text{
+  
+}
+
+.form-row{
+  /*color: red;*/
+  font-size: 20;
+  /*height: 15%;*/
+  margin: 15;
+  padding: 15;
+  /*border-color: red;*/
+  /*border-width: 1;*/
+  /*vertical-align: bottom;*/
+}
+
+Switch{
+  /*height: 15%;*/
+}
+
+.minutes-field{
+  color:green;
+  height: auto;
+  width: 50;
+}
+

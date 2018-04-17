@@ -1,0 +1,47 @@
+<ActionBar title="Create Contract" class="action-bar"></ActionBar>
+
+<GridLayout rows="*, auto" >
+  <StackLayout orientation="vertical" row="0">
+    <!-- Personal Data -->
+    <Label [text]="title" class="title"></Label>
+    <Label text="Personal:" class="title2"></Label>
+    <!-- <GridLayout columns="auto, *" rows="auto" class="itemList">
+        <Label text="Email: " col="0"></Label>
+        <Label [text]="personal.email" col="1"></Label>
+    </GridLayout>
+    <GridLayout columns="auto, *" rows="auto" class="itemList">
+        <Label text="Color: " col="0"></Label>
+        <Label [text]="personal.color" col="1"></Label>
+    </GridLayout> -->
+    <ListView [items]="personal" class="small-spacing" [class.visible]="listLoaded">
+        <ng-template let-item="item" let-i="index">
+          <GridLayout columns="auto, *" rows="auto" class="itemList2">
+            <Label [text]="item" col="1"></Label>
+          </GridLayout>
+        </ng-template>
+      </ListView>
+    <!-- Recommendations -->
+    <Label text="Recommendations:" class="title2"></Label>
+    <Label text="Clothing" class="title3"></Label>
+    <ListView [items]="clothing" class="small-spacing" [class.visible]="listLoaded">
+      <ng-template let-item="item" let-i="index">
+        <GridLayout columns="auto, *" rows="auto" class="itemList2">
+          <Label [text]="item" col="1"></Label>
+        </GridLayout>
+      </ng-template>
+    </ListView>
+    <Label text="Electronics" class="title3"></Label>
+    <ListView [items]="electronics" class="small-spacing" [class.visible]="listLoaded">
+      <ng-template let-item="item" let-i="index">
+        <GridLayout columns="auto, *" rows="auto" class="itemList2">
+          <Label [text]="item" col="1"></Label>
+        </GridLayout>
+      </ng-template>
+    </ListView>
+    <GridLayout columns="*" rows="auto">
+      <Button text="Back" [class]="isBusy ? 'disabled-button' : 'cancel-button'" (tap)="goMainAgent()" col="0"></Button>
+    </GridLayout>
+  </StackLayout>
+  
+  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="0" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
+</GridLayout>

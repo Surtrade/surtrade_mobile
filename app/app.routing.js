@@ -1,0 +1,35 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = require("@angular/core");
+var router_1 = require("nativescript-angular/router");
+var login_component_1 = require("./pages/login/login.component");
+var main_component_1 = require("./pages/main/main.component");
+var main_agent_component_1 = require("./pages/main-agent/main-agent.component");
+var customer_details_component_1 = require("./pages/customer-details/customer-details.component");
+var contract_component_1 = require("./pages/contract/contract.component");
+// import { ContractSettingsComponent } from "./pages/contract/contract-settings";
+var items_component_1 = require("./pages/item/items.component");
+var item_detail_component_1 = require("./pages/item/item-detail.component");
+var routes = [
+    { path: "", component: login_component_1.LoginComponent },
+    { path: "main", component: main_component_1.MainComponent },
+    { path: "main-agent", component: main_agent_component_1.MainAgentComponent },
+    { path: "customer-details/:customer_id", component: customer_details_component_1.CustomerDetailsComponent },
+    { path: "contractcreate/:location_id/:settings", component: contract_component_1.ContractComponent },
+    // { path: "contractsettings/:id", component:  ContractSettingsComponent },
+    { path: "items", component: items_component_1.ItemsComponent },
+    { path: "item/:id", component: item_detail_component_1.ItemDetailComponent },
+];
+var AppRoutingModule = (function () {
+    function AppRoutingModule() {
+    }
+    AppRoutingModule = __decorate([
+        core_1.NgModule({
+            imports: [router_1.NativeScriptRouterModule.forRoot(routes)],
+            exports: [router_1.NativeScriptRouterModule]
+        })
+    ], AppRoutingModule);
+    return AppRoutingModule;
+}());
+exports.AppRoutingModule = AppRoutingModule;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLnJvdXRpbmcuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJhcHAucm91dGluZy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLHNDQUF5QztBQUN6QyxzREFBdUU7QUFHdkUsaUVBQStEO0FBQy9ELDhEQUE0RDtBQUM1RCxnRkFBNkU7QUFDN0Usa0dBQStGO0FBQy9GLDBFQUF3RTtBQUN4RSxrRkFBa0Y7QUFFbEYsZ0VBQThEO0FBQzlELDRFQUF5RTtBQUV6RSxJQUFNLE1BQU0sR0FBVztJQUNuQixFQUFFLElBQUksRUFBRSxFQUFFLEVBQUUsU0FBUyxFQUFFLGdDQUFjLEVBQUU7SUFDdkMsRUFBRSxJQUFJLEVBQUUsTUFBTSxFQUFFLFNBQVMsRUFBRSw4QkFBYSxFQUFFO0lBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxTQUFTLEVBQUUseUNBQWtCLEVBQUU7SUFDckQsRUFBRSxJQUFJLEVBQUUsK0JBQStCLEVBQUUsU0FBUyxFQUFFLHFEQUF3QixFQUFFO0lBQzlFLEVBQUUsSUFBSSxFQUFFLHVDQUF1QyxFQUFFLFNBQVMsRUFBRSxzQ0FBaUIsRUFBRTtJQUMvRSwyRUFBMkU7SUFFM0UsRUFBRSxJQUFJLEVBQUUsT0FBTyxFQUFFLFNBQVMsRUFBRSxnQ0FBYyxFQUFFO0lBQzVDLEVBQUUsSUFBSSxFQUFFLFVBQVUsRUFBRSxTQUFTLEVBQUUsMkNBQW1CLEVBQUU7Q0FDdkQsQ0FBQztBQU1GO0lBQUE7SUFBZ0MsQ0FBQztJQUFwQixnQkFBZ0I7UUFKNUIsZUFBUSxDQUFDO1lBQ04sT0FBTyxFQUFFLENBQUMsaUNBQXdCLENBQUMsT0FBTyxDQUFDLE1BQU0sQ0FBQyxDQUFDO1lBQ25ELE9BQU8sRUFBRSxDQUFDLGlDQUF3QixDQUFDO1NBQ3RDLENBQUM7T0FDVyxnQkFBZ0IsQ0FBSTtJQUFELHVCQUFDO0NBQUEsQUFBakMsSUFBaUM7QUFBcEIsNENBQWdCIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgTmdNb2R1bGUgfSBmcm9tIFwiQGFuZ3VsYXIvY29yZVwiO1xuaW1wb3J0IHsgTmF0aXZlU2NyaXB0Um91dGVyTW9kdWxlIH0gZnJvbSBcIm5hdGl2ZXNjcmlwdC1hbmd1bGFyL3JvdXRlclwiO1xuaW1wb3J0IHsgUm91dGVzIH0gZnJvbSBcIkBhbmd1bGFyL3JvdXRlclwiO1xuXG5pbXBvcnQgeyBMb2dpbkNvbXBvbmVudCB9IGZyb20gXCIuL3BhZ2VzL2xvZ2luL2xvZ2luLmNvbXBvbmVudFwiO1xuaW1wb3J0IHsgTWFpbkNvbXBvbmVudCB9IGZyb20gXCIuL3BhZ2VzL21haW4vbWFpbi5jb21wb25lbnRcIjtcbmltcG9ydCB7IE1haW5BZ2VudENvbXBvbmVudCB9IGZyb20gXCIuL3BhZ2VzL21haW4tYWdlbnQvbWFpbi1hZ2VudC5jb21wb25lbnRcIjtcbmltcG9ydCB7IEN1c3RvbWVyRGV0YWlsc0NvbXBvbmVudCB9IGZyb20gJy4vcGFnZXMvY3VzdG9tZXItZGV0YWlscy9jdXN0b21lci1kZXRhaWxzLmNvbXBvbmVudCc7XG5pbXBvcnQgeyBDb250cmFjdENvbXBvbmVudCB9IGZyb20gXCIuL3BhZ2VzL2NvbnRyYWN0L2NvbnRyYWN0LmNvbXBvbmVudFwiO1xuLy8gaW1wb3J0IHsgQ29udHJhY3RTZXR0aW5nc0NvbXBvbmVudCB9IGZyb20gXCIuL3BhZ2VzL2NvbnRyYWN0L2NvbnRyYWN0LXNldHRpbmdzXCI7XG5cbmltcG9ydCB7IEl0ZW1zQ29tcG9uZW50IH0gZnJvbSBcIi4vcGFnZXMvaXRlbS9pdGVtcy5jb21wb25lbnRcIjtcbmltcG9ydCB7IEl0ZW1EZXRhaWxDb21wb25lbnQgfSBmcm9tIFwiLi9wYWdlcy9pdGVtL2l0ZW0tZGV0YWlsLmNvbXBvbmVudFwiO1xuXG5jb25zdCByb3V0ZXM6IFJvdXRlcyA9IFtcbiAgICB7IHBhdGg6IFwiXCIsIGNvbXBvbmVudDogTG9naW5Db21wb25lbnQgfSxcbiAgICB7IHBhdGg6IFwibWFpblwiLCBjb21wb25lbnQ6IE1haW5Db21wb25lbnQgfSxcbiAgICB7IHBhdGg6IFwibWFpbi1hZ2VudFwiLCBjb21wb25lbnQ6IE1haW5BZ2VudENvbXBvbmVudCB9LFxuICAgIHsgcGF0aDogXCJjdXN0b21lci1kZXRhaWxzLzpjdXN0b21lcl9pZFwiLCBjb21wb25lbnQ6IEN1c3RvbWVyRGV0YWlsc0NvbXBvbmVudCB9LFxuICAgIHsgcGF0aDogXCJjb250cmFjdGNyZWF0ZS86bG9jYXRpb25faWQvOnNldHRpbmdzXCIsIGNvbXBvbmVudDogQ29udHJhY3RDb21wb25lbnQgfSxcbiAgICAvLyB7IHBhdGg6IFwiY29udHJhY3RzZXR0aW5ncy86aWRcIiwgY29tcG9uZW50OiAgQ29udHJhY3RTZXR0aW5nc0NvbXBvbmVudCB9LFxuXG4gICAgeyBwYXRoOiBcIml0ZW1zXCIsIGNvbXBvbmVudDogSXRlbXNDb21wb25lbnQgfSxcbiAgICB7IHBhdGg6IFwiaXRlbS86aWRcIiwgY29tcG9uZW50OiBJdGVtRGV0YWlsQ29tcG9uZW50IH0sXG5dO1xuXG5ATmdNb2R1bGUoe1xuICAgIGltcG9ydHM6IFtOYXRpdmVTY3JpcHRSb3V0ZXJNb2R1bGUuZm9yUm9vdChyb3V0ZXMpXSxcbiAgICBleHBvcnRzOiBbTmF0aXZlU2NyaXB0Um91dGVyTW9kdWxlXVxufSlcbmV4cG9ydCBjbGFzcyBBcHBSb3V0aW5nTW9kdWxlIHsgfSJdfQ==

@@ -1,0 +1,28 @@
+<ActionBar title="Create Contract" class="action-bar"></ActionBar>
+<GridLayout rows="*, auto" >
+  <StackLayout orientation="vertical" row="0">
+    <Label [text]="title" class="title"></Label>
+    <Label text="Options" class="title2"></Label>
+    <!--<StakLayout orientation="vertical" class="form-row" >-->
+      <GridLayout rows="auto" class="form-row"> 
+        <Label  text="Auto-authorize" textWrap="true" col="0"></Label>
+        <Switch [checked]="aac" (checkedChange)="autoauthorizeEvent($event)" col="1"></Switch>
+      </GridLayout>
+      <GridLayout rows="auto" class="form-row"> 
+        <Label  text="Expire by time" textWrap="true" col="0"></Label>
+        <Switch [checked]="etc" (checkedChange)="expireByTimeEvent($event)" col="1"></Switch>
+      </GridLayout>
+      <StackLayout orientation="horizontal" class="form-row" [visibility]="expireByTime == 'ON' ? 'visible' : 'collapsed'">
+        <Label text="Expire in "></Label>
+        <TextField class="minutes-field" keyboardType="number" [(ngModel)]="minutes" > </TextField>
+        <Label  text=" minutes"></Label>
+      </StackLayout>
+    <!--</StakLayout>-->
+    <GridLayout columns="*, *" rows="auto">
+      <Button text="Cancel" [class]="isBusy ? 'disabled-button' : 'cancel-button'" (tap)="cancel()" col="0"></Button>
+      <Button [text]="isSettings == 1 ? 'Update Contract': 'Create Contract'" [class]="isBusy ? 'disabled-button' : 'contract-button'" (tap)="createContract()" col="1"></Button>
+    </GridLayout>
+  </StackLayout>
+  
+  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="0" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
+</GridLayout>

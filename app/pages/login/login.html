@@ -1,0 +1,11 @@
+<StackLayout #container [class]="isLoggingIn ? 'log-in' : 'sign-up'">
+  <Image src="res://surtrade_logo" stretch="none" horizontalAlignment="center"></Image>
+
+  <TextField #username hint="Username" keyboardType="email" [(ngModel)]="user.username"
+    autocorrect="false" autocapitalizationType="none"></TextField>
+  <TextField #password hint="Password" secure="true" [(ngModel)]="user.password"></TextField>
+  
+  <Button [text]="isLoggingIn ? 'Sign in &#xf090;' : 'Sign up &#xf044;'" [isEnabled]="isBusy ? 'false' : 'true'" [class]="isBusy ? 'disabled-button fontAwesome' : 'submit-button fontAwesome'" (tap)="submit()"></Button>
+  <Button [text]="isLoggingIn ? 'Sign up' : 'Back to login'" [isEnabled]="isBusy ? 'false' : 'true'" (tap)="toggleDisplay()"></Button>
+</StackLayout>
+<ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" horizontalAlignment="center" verticalAlignment="center" row="0"></ActivityIndicator>

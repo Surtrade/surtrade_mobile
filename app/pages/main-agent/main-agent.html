@@ -1,0 +1,25 @@
+<ActionBar title="Surtrade" class="action-bar"></ActionBar>
+<GridLayout rows="auto, auto, *, auto" columns="*">
+<!--<StackLayout>-->
+  <Label [text]="title" row="0" class="title"></Label>
+  <Label text="Customers with Contract:" row="1" class="title2"></Label>
+  <Label [visibility]="noContracts ? 'visible' : 'collapsed'" row="2" text="No customers with contract." class="customerList"></Label>
+  <ListView [items]="customerList"  row="2" class="small-spacing" [class.visible]="listLoaded">
+    <ng-template let-item="item">
+      <GridLayout columns="*, auto" class="itemList" (tap)="customerDetails(item.id)">
+        <!-- <Label [text]="item.name" class="medium-spacing" col="0"></Label> -->
+        <Label [text]="item.name" col="0"></Label>
+        <!-- <Image src="res://details" col="1" class="details" (tap)="customerDetails(item.id)"></Image> -->
+        <Label text="&#xf2c0;" col="1" class="fontAwesome"  horizontalAlignment="right"></Label>
+      </GridLayout>
+    </ng-template>
+  </ListView>
+  <GridLayout row="3" class="logout-bar"  columns="*">
+    <!--<Label [text]="logoutIcon" class="fontAwesome" (tap)="logout()" col="0"></Label>-->
+    <Label text="Logout &#xf08b;" class="fontAwesome" (tap)="logout()" horizontalAlignment="right"></Label>
+    
+    <!--<Label text="Logout" col="1"></Label> -->
+  </GridLayout>
+  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="0" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
+<!--</StackLayout>-->
+</GridLayout>

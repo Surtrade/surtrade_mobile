@@ -1,0 +1,8 @@
+TextField {
+  border-width: 1;
+  border-color: black;
+}
+ActionBar {
+  padding-top: 5;
+  padding-bottom: -5;
+}

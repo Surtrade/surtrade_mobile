@@ -1,0 +1,38 @@
+StackLayout {
+  margin-left: 30;
+  margin-right: 30;
+  padding-bottom: 5;
+  padding-top: 15;
+  background-color: white;
+}
+Image {
+  margin-top: 5;
+  margin-bottom: 20;
+}
+Button, TextField {
+  margin-left: 16;
+  margin-right: 16;
+  margin-bottom: 10;
+  border-radius: 10px;
+}
+.submit-button {
+  background-color: #8e341f;
+  color: white;
+  margin-top: 20;
+}
+
+.disabled-button{
+  background-color: gray;
+  color: white;
+  margin-top: 20;
+}
+
+.sign-up{
+  background-color: #b7a364;
+  border-radius: 10px;
+}
+
+.log-in{
+  background-color: white;
+  border-radius: 10px;
+}
