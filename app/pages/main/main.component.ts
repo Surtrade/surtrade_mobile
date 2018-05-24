@@ -86,7 +86,7 @@ export class MainComponent implements OnInit{
     private page: Page
   ){
       console.log("Main Constructor");
-      this.isBusy = false;
+      this.isBusy = true;
       this._current_location = null;
       // this._all_locations = [];
       this._locations_in_db = [];
@@ -122,6 +122,7 @@ export class MainComponent implements OnInit{
       this._customer_id = 0;
     }      
       
+
     // Beacons process
     this.options = {
       region : 'Progress', // optional
@@ -143,12 +144,17 @@ export class MainComponent implements OnInit{
 
             // Check for active contracts
             this.verifyContract();
+            console.log("+++++++++++++++++++++++++")
+            // Check for nearby item beacons
+            this.verifyBehavior();
+            console.log("-------------------------")
           }
         });
 
         
       }
     }
+    
 
     this.estimote = new Estimote(this.options);
 
@@ -243,8 +249,8 @@ export class MainComponent implements OnInit{
      });
 
     dialogs.action({
-      message: "Your message",
-      cancelButtonText: "Cancel text",
+      message: "Select Store",
+      cancelButtonText: "Cancel",
       actions: store_names
     }).then(name => {
       stores.forEach(store => { 
@@ -343,9 +349,34 @@ export class MainComponent implements OnInit{
     return stores;
   }
 
+  nearbyItems(){
+    let items: Array<Beacon> = [];
+    this.beaconDatabaseService.selectBeacons("item", this.location_id).forEach(itemDB=>{
+      this.currentBeacons.forEach(beaconCurrent=>{
+        // console.log("beacon db: "+itemDB.identificator);
+        // console.log("beacon current: "+beaconCurrent.identificator);
+        if(itemDB.identificator==beaconCurrent.identificator){
+          // console.log("Nearby item: "+itemDB.name);
+          items.push(itemDB);
+        }
+      });
+    });
+      
+    return items;
+  }
+
+  verifyBehavior(){
+    let nearbyItems = this.nearbyItems();
+    console.log("Nearby items: "+nearbyItems.length)
+
+    nearbyItems.forEach(item=>{
+      
+    });
+  }
+
   verifyContract(){
     console.log("Verifying contracts..");
-    // this.isBusy = true;
+    this.isBusy = true;
     let nearbyStores = this.nearbyStores();
     console.log("Nearby stores: "+nearbyStores.length)
     if (nearbyStores.length>0){
@@ -457,7 +488,7 @@ export class MainComponent implements OnInit{
     this.beaconDatabaseService.dropTable();
     // Creates DB if not exist
     this.beaconDatabaseService.createTable();
-    console.log("Locacl DB created, no errors so far..");
+    console.log("Local DB created, no errors so far..");
     this.isBusy = true;
     this.beaconService.getBeacons()
       .subscribe(response => {

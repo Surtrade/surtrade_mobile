@@ -87,6 +87,22 @@ export class ContractService {
     .catch(this.handleErrors);
   }
 
+  expireContract(location_id, customer_id){
+    let headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + Config.token);
+    
+    return this.http.post(
+      Config.apiUrl + "contracts/expire", 
+      JSON.stringify({
+        "customer_id": customer_id,
+        "location_id": location_id
+      }),
+      {headers: headers})
+      .map(res => res.json()[0])
+      .catch(this.handleErrors);
+  }
+
   handleErrors(error: Response,) {
     // console.log("Error in Contract Service: "+error);
     // console.log("Error status: "+error.status);

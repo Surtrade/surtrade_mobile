@@ -62,12 +62,23 @@ Botton:highlighted{
   margin-top: 20;
 }
 
+.expire-button {
+  background-color: #b20000;
+  color: white;
+  margin-top: 20;
+}
+
 .disabled-button {
   background-color: gray;
   color: white;
   margin-top: 20;
 }
 
+.default-button {
+  background-color: gray;
+  color: white;
+  margin-top: 20;
+}
 
 .title {
   font-size: 30px;

@@ -88,7 +88,9 @@ export class BeaconDatabaseService {
   }
   
   // select all records
-  selectBeacons(role = "all"): Array<Beacon> {
+  selectBeacons(role = "all", location_id = "0"): Array<Beacon> {
+    
+    // console.log("out param id: "+location_id);
     // console.log("Selecting all beacons.");
     let beacons = new Array<Beacon>();
     new sqlite("beacon.db", function(err, db) {
@@ -118,8 +120,24 @@ export class BeaconDatabaseService {
             beaconObj.location_id = element[9];
             // console.log("Beacon fetched form Local DB: "+beaconObj);
             // console.log("Beacon keywords: "+beaconObj.keywords.toString());
+            // console.log("param role: "+role);
+            // console.log("obj role: "+beaconObj.role);
             if(role == beaconObj.role){
-                beacons.push(beaconObj);
+                // console.log("Role: "+role);
+                
+                if(location_id!="0"){
+                    // console.log("in param id: "+location_id);
+                    // console.log("obj id: "+beaconObj.location_id);
+                    if(location_id == beaconObj.location_id){
+                        beacons.push(beaconObj);
+                        // console.log("Pushing beacon: "+beaconObj.name)
+                    }
+                    // If role is item and location_id is not the same as beacon object's location then ignore beacon.
+                }
+                else{
+                    beacons.push(beaconObj);
+                }
+                
             }else if(role == "all"){
                 beacons.push(beaconObj);
             }

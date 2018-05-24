@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
 import { Switch } from "ui/switch";
+import * as Toast from 'nativescript-toast';
 
 import * as application from 'application';
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
@@ -30,9 +31,11 @@ export class ContractComponent implements OnInit {
     minutes: number;
     expireByTime: string;
     autoauthorize: string;
+    behaviourTracking: string;
 
     public aac: boolean;
     public etc: boolean;
+    public bht: boolean;
     public title: string = "Welcome to Narnia";
 
 
@@ -50,6 +53,8 @@ export class ContractComponent implements OnInit {
       this.etc = false
       this.autoauthorize = "ON";
       this.aac = true;  
+      this.behaviourTracking = "ON";
+      this.bht = true; 
        
        
       //  this._contract = null;
@@ -69,7 +74,7 @@ export class ContractComponent implements OnInit {
       
       // this.locationDatabaseService.selectLocation(this._location_id)
       // this.title = "At "+this.locationDatabaseService.selectLocation(this._location_id)[1];
-      this.title = "At "+this.beaconDatabaseService.selectBeaconByLocation(this._location_id)[6];
+      this.title = "At "+this.beaconDatabaseService.selectBeaconByLocation(this._location_id)[6]+" store";
       // alert("stuff:"+ this.locationDatabaseService.selectLocation(this._location_id)[1]);
 
       // if (isAndroid) {
@@ -78,11 +83,11 @@ export class ContractComponent implements OnInit {
       //   });
       // }
 
-      // try{
-      //   this._customer_id = appSettings.getNumber("user_id");
-      // }catch(e){
-      //   this._customer_id = 0;
-      // }   
+      try{
+        this._customer_id = appSettings.getNumber("user_id");
+      }catch(e){
+        this._customer_id = 0;
+      }   
 
       
       if (this.isSettings == true){
@@ -102,9 +107,15 @@ export class ContractComponent implements OnInit {
                 this.etc = true;
               }
 
+              // alert(responseContract.options.behaviour_tracking);
+              if(responseContract.options.behaviour_tracking == false){
+                this.behaviourTracking = "OFF";
+                this.bht = false;
+              }
+              // alert(responseContract.options.behaviour_tracking);
             }else{
               console.log("message:"+responseContract.message);
-              alert("Contract expired.");
+              // alert("Contract expired.");
               this.goMain();
             }
             this.isBusy = false;
@@ -128,6 +139,7 @@ export class ContractComponent implements OnInit {
             this.expireByTime = "OFF";
         }
     }
+
     public autoauthorizeEvent(args) {
         let switchBox = <Switch>args.object;
         if (switchBox.checked) {
@@ -136,6 +148,16 @@ export class ContractComponent implements OnInit {
             this.autoauthorize = "OFF";
         }
     }
+
+    public behaviourTrackingEvent(args) {
+      let switchBox = <Switch>args.object;
+      if (switchBox.checked) {
+          this.behaviourTracking = "ON";
+      } else {
+          this.behaviourTracking = "OFF";
+          // alert("off");
+      }
+  }
 
     createContract(){
       this.isBusy = true;
@@ -146,15 +168,24 @@ export class ContractComponent implements OnInit {
         auto_authorize = false;
       
       let options = {
-        "expire_method":""
+        "expire_method":"",
+        "behaviour_tracking":true
       };
 
       let expire_method = "location";
       if (this.expireByTime == "ON"){
         expire_method = "time";
       }
-
       options.expire_method = expire_method;
+
+      let behaviour_tracking = true;
+      if(this.behaviourTracking == "OFF"){
+        
+        behaviour_tracking = false;
+        // alert('it is off');
+      }
+      options.behaviour_tracking = behaviour_tracking;
+      // alert(options.behaviour_tracking)
       
       let contractData={
         "location_id": this._location_id,
@@ -163,10 +194,11 @@ export class ContractComponent implements OnInit {
         "expire": this.minutes,
         "options": options
       };
-
+      // alert(contractData.options.behaviour_tracking)
       this.contractService.createContract(contractData)
       .subscribe(response => { 
-        this.isBusy = false;    
+        this.isBusy = false;
+        Toast.makeText("Contract created succesfully!").show();
         this.goMain();
       },error => {
         this.isBusy = false;
@@ -174,6 +206,25 @@ export class ContractComponent implements OnInit {
         this.goMain();
         // throw new Error(error);
       });
+    }
+
+    expireContract(){
+      this.isBusy = true;
+      console.log("in settings");
+      this.contractService.expireContract(this._location_id, this._customer_id)
+        .subscribe(responseContract => {
+          this.isBusy = false;
+          // alert("Contract expired succesfully!");
+          Toast.makeText("Contract expired succesfully!").show();
+          this.goMain();
+        },error => {
+          console.log("error in contract");
+          if (error.status != 404){
+            alert("Error expiring the contract: "+error);
+          }
+          this.isBusy = false;
+          this.goMain();
+        });
     }
 
     public cancel(){
