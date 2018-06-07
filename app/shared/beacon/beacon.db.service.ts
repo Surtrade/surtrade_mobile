@@ -12,7 +12,7 @@ export class BeaconDatabaseService {
   // create a table
   createTable() {
     new sqlite("beacon.db", function(err, db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS Beacon (id INTEGER PRIMARY KEY, identificator, TEXT, major TEXT, minor TEXT, role TEXT, name TEXT, active NUMERIC, keywords JSON, location_id TEXT )", [], function(err) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS Beacon (id INTEGER PRIMARY KEY, identificator TEXT, major TEXT, minor TEXT, role TEXT, name TEXT, active NUMERIC, keywords JSON, location_id TEXT )", [], function(err) {
             console.log("TABLE Beacon CREATED");
             return true;
         });
@@ -42,7 +42,7 @@ export class BeaconDatabaseService {
   // update an existing record
   updateBeacon(id, identificator, major, minor, role, name, active, keywords, location_id) {
     new sqlite("beacon.db", function(err, db) {
-        db.execSQL("UPDATE Beacon SET identificator = ?, major = ?, minor = ?, role = ?, name = ?, active = ?, keywords = ?, location_id = ? WHERE id = ?", [major, minor, role, id], function(err, id) {
+        db.execSQL("UPDATE Beacon SET identificator = ?, major = ?, minor = ?, role = ?, name = ?, active = ?, keywords = ?, location_id = ? WHERE id = ?", [identificator, major, minor, role, name, active, keywords, location_id, id], function(err, id) {
             console.log("The existing record id is: " + id);
             return true;
         });
@@ -108,16 +108,14 @@ export class BeaconDatabaseService {
             // console.log("E6: "+element[6]);
             // console.log("E7: "+element[7]);
             // console.log("E8: "+element[8]);
-            let beaconObj = new Beacon(element[3],element[4]);
+            let beaconObj = new Beacon(element[2],element[3]);
             beaconObj.id = element[0];
             beaconObj.identificator = element[1];
-            beaconObj.major = element[3];
-            beaconObj.minor = element[4];
-            beaconObj.role = element[5];
-            beaconObj.name = element[6];
-            beaconObj.active = element[7];
-            beaconObj.keywords = element[8];
-            beaconObj.location_id = element[9];
+            beaconObj.role = element[4];
+            beaconObj.name = element[5];
+            beaconObj.active = element[6];
+            beaconObj.keywords = element[7];
+            beaconObj.location_id = element[8];
             // console.log("Beacon fetched form Local DB: "+beaconObj);
             // console.log("Beacon keywords: "+beaconObj.keywords.toString());
             // console.log("param role: "+role);

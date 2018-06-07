@@ -11,6 +11,10 @@ import { Contract } from "../../shared/contract/contract";
 
 // import { LocationService } from "../../shared/location/location.service";
 // import { LocationDatabaseService } from '../../shared/location/location.db.service';
+import { VisitService } from "../../shared/visit/visit.service";
+import { VisitDatabaseService } from "../../shared/visit/visit.db.service";
+import { InterestService } from "../../shared/interest/interest.service";
+import { InterestDatabaseService } from "../../shared/interest/interest.db.service";
 import { BeaconService } from "../../shared/beacon/beacon.service";
 import { BeaconDatabaseService } from "../../shared/beacon/beacon.db.service";
 import { ContractService } from "../../shared/contract/contract.service";
@@ -19,6 +23,10 @@ import * as application from 'application';
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import { isAndroid } from "platform";
 import { Beacon } from "../../shared/beacon/beacon";
+import { Visit } from "../../shared/visit/visit";
+import { Interest } from "../../shared/interest/interest";
+
+import * as Toast from 'nativescript-toast';
 
 // import { storage } from "../../utils/local";
 var appSettings = require("application-settings");
@@ -30,8 +38,8 @@ declare var android: any;
 
 @Component({
     selector: "main",
-    providers: [BeaconService, BeaconDatabaseService, ContractService],
-    // providers: [LocationService, LocationDatabaseService, ContractService],
+    providers: [BeaconService, BeaconDatabaseService, VisitService, VisitDatabaseService, InterestService, InterestDatabaseService, ContractService],
+    // providers: [LocationService, LocationDatabaseService, ContractService], 
     // providers: [LocationService, ContractService],
     templateUrl: "pages/main/main.html",
     styleUrls:["pages/main/main-common.css"] 
@@ -78,6 +86,10 @@ export class MainComponent implements OnInit{
     // private locationDatabaseService: LocationDatabaseService,
     private beaconService: BeaconService,
     private beaconDatabaseService: BeaconDatabaseService,
+    private visitService: VisitService,
+    private visitDatabaseService: VisitDatabaseService,
+    private interestService: InterestService,
+    private interestDatabaseService: InterestDatabaseService,
     private contractService: ContractService,
     private route: ActivatedRoute,
     private router: RouterExtensions,
@@ -86,7 +98,7 @@ export class MainComponent implements OnInit{
     private page: Page
   ){
       console.log("Main Constructor");
-      this.isBusy = true;
+      // this.isBusy = true;
       this._current_location = null;
       // this._all_locations = [];
       this._locations_in_db = [];
@@ -106,12 +118,12 @@ export class MainComponent implements OnInit{
       this.router.navigate(["/"]), { clearHistory: true };
     }
 
-    if (isAndroid) {
-      application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
-        this.router.navigate(["/"]), { clearHistory: true };
-        // this.logout();
-      });
-    }
+    // if (isAndroid) {
+    //   application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+    //     this.router.navigate(["/"]), { clearHistory: true };
+    //     // this.logout();
+    //   });
+    // }
 
     this.title = "Welcome "+ appSettings.getString("user_name");    
 
@@ -128,9 +140,9 @@ export class MainComponent implements OnInit{
       region : 'Progress', // optional
       callback : beacons => {
         // console.log("Beacons: "+beacons)
-        console.log("Amount of Beacons in range: "+beacons.length)
+        // console.log("Amount of Beacons in range: "+beacons.length)
         this.zone.run(() => {
-          // console.log("Amount of Beacons in range: "+beacons.count)
+          console.log("Amount of Beacons in range: "+beacons.length);
           if(beacons.length>0){
             this.currentBeacons = [];
             beacons.forEach(beacon => {
@@ -141,14 +153,30 @@ export class MainComponent implements OnInit{
                 this.currentBeacons.push(b);
               }
             });
-
-            // Check for active contracts
-            this.verifyContract();
-            console.log("+++++++++++++++++++++++++")
-            // Check for nearby item beacons
-            this.verifyBehavior();
-            console.log("-------------------------")
+          }else{
+            this.currentBeacons = [];
           }
+
+
+          // Check for active contracts
+          console.log("+++++++++++++++++++++++++");
+          this.verifyContract();
+
+
+          // Check if user is in store or just passing by
+          console.log("*************************");
+          this.verifyVisit();
+          
+
+
+          
+
+          // Check if behaviour tracking is enabled and track
+          if( typeof this._contract !== "undefined" && typeof this._contract.options['behaviour_tracking'] !== "undefined" && this._contract.options['behaviour_tracking']){
+            console.log("-------------------------");
+            this.verifyBehavior();
+          }
+
         });
 
         
@@ -196,12 +224,16 @@ export class MainComponent implements OnInit{
     // Creates DB if not exist
     // this.beaconDatabaseService.dropTable();
     this.beaconDatabaseService.createTable();
+    this.visitDatabaseService.createTable();
+    this.interestDatabaseService.createTable();
 
     //Updates the DB, this should not be done every time, but rather once every day
     if(this.isBeaconDatabaseEmpty()){
       console.log("Local DB is empty.");
       this.updateBeaconDatabase();
     }else{
+      // Delete: next line should be used only periodically.
+      // this.updateBeaconDatabase();
       console.log("Local DB has data.");
     }
 
@@ -223,6 +255,10 @@ export class MainComponent implements OnInit{
     // // Beacons stop
     // this.estimote.stopRanging();
     // console.log("Stop ranging");
+
+    // this.verifyVisit();
+    // this.verifyBehavior();
+    
   }
 
   public contractSettings(){
@@ -334,12 +370,13 @@ export class MainComponent implements OnInit{
   // }
 
   nearbyStores(){
+    console.log("Checking nearby stores..");
     let stores: Array<Beacon> = [];
     // this.beaconDatabaseService.selectAllBeacons("where role=store").forEach(storeDB=>{
     this.beaconDatabaseService.selectBeacons("store").forEach(storeDB=>{
       // console.log("storeDB iden: "+storeDB.identificator);
       this.currentBeacons.forEach(beaconCurrent=>{
-        // console.log("beaconCurrent iden: "+beaconCurrent.identificator);
+        console.log("beaconCurrent iden: "+beaconCurrent.identificator);
         if(storeDB.identificator==beaconCurrent.identificator){
           stores.push(storeDB);
         }
@@ -364,24 +401,331 @@ export class MainComponent implements OnInit{
       
     return items;
   }
+  dateFormatter(date: Date){
+    return date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
+  }
+
+  verifyVisit(){
+    let nearbyStores = this.nearbyStores();
+    console.log("Nearby stores: "+nearbyStores.length)
+    if (nearbyStores.length>0){
+      nearbyStores.forEach(store=>{
+        console.log("Store identificator: "+store.identificator);
+        let visit  = this.visitDatabaseService.selectVisitByBeacon(store.identificator);
+        // console.log("visit id: "+visit);
+        // console.log("visit.id: "+visit.id);
+        // console.log("visit[0]: "+visit[0]);
+        // Verify if visit is being created
+        if (visit != null){
+          let start = new Date(visit[3]);
+          let end = new Date(visit[4]);
+          let duration = end.getTime() - start.getTime();
+          let sinceLast = new Date().getTime() - end.getTime();
+          // console.log("visit");
+          console.log("start: "+(visit.start));
+          console.log("start: "+(start.getTime()));
+          console.log("start: "+(start.toDateString()));
+          console.log("start: "+(start.toString()));
+          console.log("start: "+(this.dateFormatter(start)));
+          // console.log("end: "+ end.getTime());
+          console.log('visit duration: '+duration);
+          console.log('visit sinceLast: '+sinceLast);
+
+          console.log("Visit post test: "+visit);
+          // this.visitService.createVisit(visit).subscribe(response => { 
+          //   // this.isBusy = false;
+          //   Toast.makeText("Visit Sent!").show();
+          // },error => {
+          //   this.isBusy = false;
+          //   alert("Error creating the contract: "+error);
+          //   // throw new Error(error);
+          // });
+
+
+          // if last reading of store was less than 20 seconds ago
+          if(sinceLast < 59000){ // update end date to current
+            this.visitDatabaseService.updateVisit(visit[0],visit[1],  visit[2] , visit[3] ,new Date(), visit[5] , visit[6] , visit[7]);
+            console.log("visit 'end' updated");
+          }else{// if last reading of store was more than 20 seconds ago
+            if(duration > 60000){ // if readings lasted more than 3 minutes , send record.. 1 min
+              console.log("Sending visit a: "+visit)
+              // console.log("Actual implementation pending..");
+              this.visitService.createVisit(visit).subscribe(response => { 
+                  // this.isBusy = false;
+                  Toast.makeText("Visit Sent!").show();
+                },error => {
+                  this.isBusy = false;
+                  alert("Error creating the contract: "+error);
+                  // throw new Error(error);
+                });
+
+              Toast.makeText("Goodbye from "+store.name).show();
+
+              // Send finished interests
+              // let finishedInterests = this.interestDatabaseService.finishInterests(); 
+              // if (finishedInterests.length > 0){
+              //   finishedInterests.forEach(interest=>{
+              //     // send interest
+              //     console.log("Sending interest from finish interest: "+interest.beacon);
+              //     console.log("Actual implementation pending..");
+
+              //     Toast.makeText("Interest stored.").show();
+              //     console.log("Interest stored.")
+              //   });
+              // }
+              // Retrive all interests (should be max 1)
+
+              let interests = this.interestDatabaseService.selectInterests();
+
+              console.log("how many intersts to finish: "+interests.length);
+              // if there is an interest 
+              if (interests.length > 0){
+                  interests.forEach(interest =>{
+                  let start = new Date(interest.start);
+                  let end = new Date(interest.end);
+                  let duration = end.getTime() - start.getTime();
+                  let sinceLast = new Date().getTime() - end.getTime();
+                  console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+                  
+                  // if duration  > 1 minute then send interest
+                  if( duration > 60000){
+                      console.log("Sending interest b: "+interest.beacon)
+                      console.log("Actual implementation pending..");
+
+                      Toast.makeText("Interest stored.").show();
+                      console.log("Interest stored.")
+
+                      // finishedInterests.push(interest);
+                  }
+                  console.log("Deleting interest due to expiring contract: "+interest.beacon);
+                  this.interestDatabaseService.deleteInterest(interest.id);
+                  
+                  });
+              }
+
+              console.log("Contract info..");
+              console.log("this._contract: "+this._contract);
+              // console.log("this._contract.options: "+this._contract.options);
+              // console.log("this._contract.options['expire_method']: "+this._contract.options['expire_method']);
+              
+              if( typeof this._contract !== "undefined" && typeof this._contract.options['expire_method'] !== "undefined" && this._contract.options['expire_method'] == 'location'){
+                // expire contract if location on
+                this.isBusy = true;
+                this.contractService.expireContract(this._contract.location_id,this._contract.customer_id)
+                  .subscribe(responseContract => {
+                    this.isBusy = false;
+                    // alert("Contract expired succesfully!");
+                    Toast.makeText("Contract expired succesfully!").show();
+                  },error => {
+                    console.log("error in contract");
+                    if (error.status != 404){
+                      alert("Error expiring the contract: "+error);
+                    }
+                    this.isBusy = false;
+                  });
+              }
+
+
+            } 
+            // delete record
+            console.log("Deleting visit due to less than 59 seconds: "+visit[0]);
+            this.visitDatabaseService.deleteVisit(visit[0]);
+            
+          
+          }
+        }else{
+          console.log("Creating new visit")
+          let visitObj = new Visit(this._customer_id, store.identificator);
+          visitObj.keywords=store.keywords;
+          this.visitDatabaseService.insertVisit(visitObj);
+          Toast.makeText("Wellcome to "+store.name).show();
+        }
+      });
+    }else{
+      // Retrive all visits (should be max 1)
+      let visits = this.visitDatabaseService.selectVisits();
+
+      console.log("how many visits: "+visits.length);
+      // if there is an visit 
+      if (visits.length > 0){
+        visits.forEach(visit =>{
+          let start = new Date(visit.start);
+          let end = new Date(visit.end);
+          let duration = end.getTime() - start.getTime();
+          let sinceLast = new Date().getTime() - end.getTime();
+
+          console.log("sinceLast: "+ sinceLast);
+          console.log("duration: "+ duration);
+          // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+          if(sinceLast > 60000){
+            // if duration  > 1 minute then send visit
+            if( duration > 60000){
+              console.log("Sending visit b : "+visit.id)
+              // console.log("Actual implementation pending..");
+              this.visitService.createVisit(visit).subscribe(response => { 
+                  // this.isBusy = false;
+                  Toast.makeText("Visit Sent!").show();
+                },error => {
+                  this.isBusy = false;
+                  alert("Error creating the contract: "+error);
+                  // throw new Error(error);
+                });
+
+              Toast.makeText("Goodbye!").show();
+
+              // Send finished interests
+              // let finishedInterests = this.interestDatabaseService.finishInterests(); 
+              // if (finishedInterests.length > 0){
+              //   finishedInterests.forEach(interest=>{
+              //     // send interest
+              //     console.log("Sending interest from finish interest: "+interest.beacon);
+              //     console.log("Actual implementation pending..");
+
+              //     Toast.makeText("Interest stored.").show();
+              //     console.log("Interest stored.")
+              //   });
+              // }
+
+              // Retrive all interests (should be max 1)
+              let interests = this.interestDatabaseService.selectInterests();
+
+              console.log("how many intersts to finish: "+interests.length);
+              // if there is an interest 
+              if (interests.length > 0){
+                  interests.forEach(interest =>{
+                  let start = new Date(interest.start);
+                  let end = new Date(interest.end);
+                  let duration = end.getTime() - start.getTime();
+                  let sinceLast = new Date().getTime() - end.getTime();
+                  console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+                  
+                  // if duration  > 1 minute then send interest
+                  if( duration > 60000){
+                      console.log("Sending interest b: "+interest.beacon)
+                      console.log("Actual implementation pending..");
+
+                      Toast.makeText("Interest stored.").show();
+                      console.log("Interest stored.")
+
+                      // finishedInterests.push(interest);
+                  }
+                  console.log("Deleting interest due to expiring contract: "+interest.beacon);
+                  this.interestDatabaseService.deleteInterest(interest.id);
+                  
+                  });
+              }
+
+
+              console.log("Contract info..");
+              console.log("this._contract: "+this._contract);
+              // console.log("this._contract.options: "+this._contract.options);
+              // console.log("this._contract.options['expire_method']: "+this._contract.options['expire_method']);
+
+              if( typeof this._contract !== "undefined" && typeof this._contract.options['expire_method'] !== "undefined" && this._contract.options['expire_method'] == 'location'){
+                // expire contract if location on
+                this.isBusy = true;
+                this.contractService.expireContract(this._contract.location_id,this._contract.customer_id)
+                  .subscribe(responseContract => {
+                    this.isBusy = false;
+                    // alert("Contract expired succesfully!");
+                    Toast.makeText("Contract expired succesfully!").show();
+                  },error => {
+                    console.log("error in contract");
+                    if (error.status != 404){
+                      alert("Error expiring the contract: "+error);
+                    }
+                    this.isBusy = false;
+                  });
+              }
+
+            }
+            console.log("Deleting visit due to more than 1 minute away: "+visit.id);
+            this.visitDatabaseService.deleteVisit(visit.id);
+          }
+        });
+      }
+    }
+  }
 
   verifyBehavior(){
     let nearbyItems = this.nearbyItems();
     console.log("Nearby items: "+nearbyItems.length)
 
-    nearbyItems.forEach(item=>{
-      
-    });
+    if (nearbyItems.length>0){
+      nearbyItems.forEach(item=>{
+        console.log("Beacon identificator: "+item.identificator);
+        let interest  = this.interestDatabaseService.selectInterestByBeacon(item.identificator);
+        // Verify if interest is being created
+        if (interest != null){
+          let start = new Date(interest[3]);
+          let end = new Date(interest[4]);
+          let duration = end.getTime() - start.getTime();
+          let sinceLast = new Date().getTime() - end.getTime();
+          // console.log("interest");
+          // console.log("start: "+(start.getTime()));
+          // console.log("end: "+ end.getTime());
+          console.log('interest duration: '+duration);
+          console.log('interest sinceLast: '+sinceLast);
+          // if last reading of item was less than 20 seconds ago
+          if(sinceLast < 59000){ // update end date to current
+            this.interestDatabaseService.updateInterest(interest[0],interest[1],  interest[2] , interest[3] ,new Date(), interest[5] , interest[6] , interest[7]);
+            console.log("interest 'end' updated");
+          }else{// if last reading of item was more than 20 seconds ago
+            if(duration > 60000){ // if readings lasted more than 60 seconds, send record
+              console.log("Sending interesta : "+interest)
+              console.log("Actual implementation pending..");
+              Toast.makeText("Interest stored.").show();
+            }
+            // delete record
+            console.log("Deleting interest due to less than 20 seconds: "+interest[0]);
+            this.interestDatabaseService.deleteInterest(interest[0]);
+          
+          }
+        }else{
+          console.log("Creating new interest")
+          let interestObj = new Interest(this._customer_id, item.identificator);
+          interestObj.keywords=item.keywords;
+          this.interestDatabaseService.insertInterest(interestObj);
+          Toast.makeText("Recording interest.").show();
+        }
+      });
+    }else{
+      // Retrive all interests (should be max 1)
+      let interests = this.interestDatabaseService.selectInterests();
+
+      console.log("how many intersts: "+interests.length);
+      // if there is an interest 
+      if (interests.length > 0){
+        interests.forEach(interest =>{
+          let start = new Date(interest.start);
+          let end = new Date(interest.end);
+          let duration = end.getTime() - start.getTime();
+          let sinceLast = new Date().getTime() - end.getTime();
+          // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+          console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+          if(sinceLast > 60000){
+            // if duration  > 1 minute then send interest
+            if( duration > 60000){
+              console.log("Sending interest b: "+interest.beacon)
+              console.log("Actual implementation pending..");
+              Toast.makeText("Interest stored.").show();
+            }
+            console.log("Deleting interest due to more than 1 minute away: "+interest.id);
+            this.interestDatabaseService.deleteInterest(interest.id);
+          }
+        });
+      }
+    }
   }
 
   verifyContract(){
     console.log("Verifying contracts..");
-    this.isBusy = true;
+    // this.isBusy = true;
     let nearbyStores = this.nearbyStores();
     console.log("Nearby stores: "+nearbyStores.length)
     if (nearbyStores.length>0){
       nearbyStores.forEach(store => {
-        this.contractService.getActiveContract(store.location_id, this._customer_id)
+        this.contractService.getActiveContract( this._customer_id ,parseInt(store.location_id))
         .subscribe(responseContract => {
           if (!responseContract.message){
             this._contract = responseContract;
@@ -402,7 +746,34 @@ export class MainComponent implements OnInit{
           this.isBusy = false;  
         });
       });
-    } 
+    }else{
+      console.log("about to verify contract without store/location");
+      console.log("cust: "+this._customer_id);
+      this.contractService.getActiveContract( this._customer_id )
+        .subscribe(responseContract => {
+          console.log("message? "+responseContract);
+          if (!responseContract.message){
+            this._contract = responseContract;
+            this.canContract = false;
+            this.hasContract = true;
+            this.location_id = responseContract.location_id;
+            console.log("Active contract.");
+          }
+          else{
+            console.log("contract but no message")
+          }
+          this.isBusy = false;
+        },error => {
+          if (error.status == 404){
+            this.canContract = true;
+            this.hasContract = false;
+            console.log("No active Contracts.");
+          }else{
+            alert("Error getting active contract information: "+error);
+          }
+          this.isBusy = false;  
+        });
+    }
   }
 
   // Location refactor

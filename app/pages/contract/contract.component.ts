@@ -12,13 +12,14 @@ import { isAndroid } from "platform";
 import { ContractService } from "../../shared/contract/contract.service";
 // import { LocationDatabaseService } from '../../shared/location/location.db.service';
 import { BeaconDatabaseService } from '../../shared/beacon/beacon.db.service';
+import { InterestDatabaseService } from '../../shared/interest/interest.db.service';
 
 var appSettings = require("application-settings");
 
 @Component({
     selector: "ns-contract",
     // providers: [ContractService,LocationDatabaseService],
-    providers: [ContractService, BeaconDatabaseService],
+    providers: [ContractService, BeaconDatabaseService, InterestDatabaseService],
     // moduleId: module.id,
     templateUrl: "./pages/contract/contract.html",
     styleUrls:["./pages/contract/contract.css"] 
@@ -47,8 +48,10 @@ export class ContractComponent implements OnInit {
         private route: ActivatedRoute,
         private router: RouterExtensions,
         // private locationDatabaseService: LocationDatabaseService
+        private interestDatabaseService: InterestDatabaseService,
         private beaconDatabaseService: BeaconDatabaseService
     ) { 
+      console.log("In Create contract constructor.")
       this.expireByTime = "OFF";
       this.etc = false
       this.autoauthorize = "ON";
@@ -77,11 +80,11 @@ export class ContractComponent implements OnInit {
       this.title = "At "+this.beaconDatabaseService.selectBeaconByLocation(this._location_id)[6]+" store";
       // alert("stuff:"+ this.locationDatabaseService.selectLocation(this._location_id)[1]);
 
-      // if (isAndroid) {
-      //   application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
-      //     this.goMain();
-      //   });
-      // }
+      if (isAndroid) {
+        application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+          this.goMain();
+        });
+      }
 
       try{
         this._customer_id = appSettings.getNumber("user_id");
@@ -93,7 +96,7 @@ export class ContractComponent implements OnInit {
       if (this.isSettings == true){
         this.isBusy = true;
         console.log("in settings");
-        this.contractService.getActiveContract(this._location_id, this._customer_id)
+        this.contractService.getActiveContract(this._customer_id, this._location_id)
           .subscribe(responseContract => {
             if (!responseContract.message && responseContract.status != undefined){
               console.log("no message :), status: "+responseContract.status);
@@ -208,9 +211,48 @@ export class ContractComponent implements OnInit {
       });
     }
 
+
     expireContract(){
       this.isBusy = true;
-      console.log("in settings");
+      console.log("expiring contract in settings");
+
+      let finishedInterests = this.interestDatabaseService.finishInterests(); 
+      if (finishedInterests.length > 0){
+        finishedInterests.forEach(interest=>{
+          // send interest
+          console.log("Sending interest from finish interest: "+interest.beacon);
+          console.log("Actual implementation pending..");
+
+          Toast.makeText("Interest stored.").show();
+          console.log("Interest stored.")
+        });
+      }
+
+      // // Retrive all interests (should be max 1)
+      // let interests = this.interestDatabaseService.selectInterests();
+
+      // console.log("how many intersts to finish: "+interests.length);
+      // // if there is an interest 
+      // if (interests.length > 0){
+      //     interests.forEach(interest =>{
+      //     let start = new Date(interest.start);
+      //     let end = new Date(interest.end);
+      //     let duration = end.getTime() - start.getTime();
+      //     let sinceLast = new Date().getTime() - end.getTime();
+      //     console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+          
+      //     // if duration  > 1 minute then send interest
+      //     if( duration > 60000){
+      //         console.log("Sending interest b: "+interest.beacon)
+      //         console.log("Actual implementation pending..");
+      //         Toast.makeText("Interest stored.").show();
+      //     }
+      //     console.log("Deleting interest due to expiring contract: "+interest.beacon);
+      //     this.interestDatabaseService.deleteInterest(interest.id);
+          
+      //     });
+      // }
+
       this.contractService.expireContract(this._location_id, this._customer_id)
         .subscribe(responseContract => {
           this.isBusy = false;
@@ -226,6 +268,33 @@ export class ContractComponent implements OnInit {
           this.goMain();
         });
     }
+
+    // verifyBehaviour(){
+    //   // Retrive all interests (should be max 1)
+    //   let interests = this.interestDatabaseService.selectInterests();
+
+    //   console.log("how many intersts: "+interests.length);
+    //   // if there is an interest 
+    //   if (interests.length > 0){
+    //     interests.forEach(interest =>{
+    //       let start = new Date(interest[3]);
+    //       let end = new Date(interest[4]);
+    //       let duration = end.getTime() - start.getTime();
+    //       let sinceLast = new Date().getTime() - end.getTime();
+    //       // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+    //       if(sinceLast > 60000){
+    //         // if duration  > 1 minute then send interest
+    //         if( duration > 60000){
+    //           console.log("Sending interest b: "+interest[0])
+    //           console.log("Actual implementation pending..");
+    //           Toast.makeText("Interest stored.").show();
+    //         }
+    //         console.log("Deleting interest due to more than 1 minute away: "+interest[0]);
+    //         this.interestDatabaseService.deleteInterest(interest[0]);
+    //       }
+    //     });
+    //   }
+    // }
 
     public cancel(){
       this.goMain();

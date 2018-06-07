@@ -45,7 +45,7 @@ export class UserService {
     headers.append("Content-Type", "application/json");
     
     
-
+    console.log("Login in to: "+Config.apiUrl + "auth/login");
     return this.http.post(
       Config.apiUrl + "auth/login",
       // "http://174.138.48.44:5000/auth/login",

@@ -4,5 +4,6 @@ export class Config {
   // static apiUrl = "https://surtrade2.localtunnel.me/"
   // Digital Ocean Server
   static apiUrl = "http://159.89.25.253:5000/"
+  // static apiUrl = "http://0.0.0.0:5000/"
   static token = "";
 }

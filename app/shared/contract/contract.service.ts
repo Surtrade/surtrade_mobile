@@ -25,19 +25,25 @@ export class ContractService {
     .catch(this.handleErrors);
   }
 
-  getActiveContract(location_id, customer_id){
+  getActiveContract(customer_id , location_id=0){
     let headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", "Bearer " + Config.token);
 
     // console.log("customer: "+ customer_id+", loc: "+location_id);
+    let data = {
+      customer_id: customer_id
+    }
+    if (location_id != 0){
+      data["location_id"] = location_id;
+    }
+
+    console.log("creating contract.. location: "+location_id);
+    console.log("data: "+JSON.stringify(data));
 
     return this.http.post(
       Config.apiUrl + "contracts/active", 
-      JSON.stringify({
-        "customer_id": customer_id,
-        "location_id": location_id
-      }),
+      JSON.stringify(data),
       {headers: headers})
       .map(res => res.json()[0])
       .catch(this.handleErrors);
