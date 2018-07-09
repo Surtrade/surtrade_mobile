@@ -1,7 +1,7 @@
 # Surtrade Mobile App
 ## NativeScript Information
-**[Documentation](https://docs.nativescript.org/angular/start/introduction.html)**
-**[Tutorial](https://docs.nativescript.org/angular/tutorial/ng-chapter-0.html)**
+- **[Documentation](https://docs.nativescript.org/angular/start/introduction.html)**
+- **[Tutorial](https://docs.nativescript.org/angular/tutorial/ng-chapter-0.html)**
 
 #### Commands
 ##### Status
