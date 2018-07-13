@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Interest = (function () {
+var Interest = /** @class */ (function () {
     function Interest(_customer_id, _beacon, _start, _end) {
         if (_start === void 0) { _start = new Date(); }
         if (_end === void 0) { _end = new Date(); }

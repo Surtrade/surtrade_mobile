@@ -6,7 +6,7 @@ var router_2 = require("nativescript-angular/router");
 // import { Contract } from "../../shared/contract/contract";
 var user_service_1 = require("../../shared/user/user.service");
 var appSettings = require("application-settings");
-var CustomerDetailsComponent = (function () {
+var CustomerDetailsComponent = /** @class */ (function () {
     function CustomerDetailsComponent(userService, route, router) {
         this.userService = userService;
         this.route = route;

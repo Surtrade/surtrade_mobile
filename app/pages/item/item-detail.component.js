@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var router_1 = require("@angular/router");
 var item_service_1 = require("./item.service");
-var ItemDetailComponent = (function () {
+var ItemDetailComponent = /** @class */ (function () {
     function ItemDetailComponent(itemService, route) {
         this.itemService = itemService;
         this.route = route;

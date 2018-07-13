@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var sqlite = require("nativescript-sqlite");
 var beacon_1 = require("./beacon");
-var BeaconDatabaseService = (function () {
+var BeaconDatabaseService = /** @class */ (function () {
     function BeaconDatabaseService() {
         console.log("In Beacon DB Service Constructor");
     }

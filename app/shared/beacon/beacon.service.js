@@ -6,7 +6,7 @@ var Rx_1 = require("rxjs/Rx");
 var config_1 = require("../config");
 var beacon_1 = require("./beacon");
 var appSettings = require("application-settings");
-var BeaconService = (function () {
+var BeaconService = /** @class */ (function () {
     function BeaconService(http) {
         this.http = http;
         console.log("In Beacon Service Constructor");

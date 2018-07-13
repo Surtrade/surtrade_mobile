@@ -6,7 +6,7 @@ var Rx_1 = require("rxjs/Rx");
 // import { isEnabled, enableLocationRequest, getCurrentLocation, watchLocation, distance, clearWatch } from "nativescript-geolocation";
 var config_1 = require("../config");
 var user_1 = require("../user/user");
-var ContractService = (function () {
+var ContractService = /** @class */ (function () {
     function ContractService(http) {
         this.http = http;
     }

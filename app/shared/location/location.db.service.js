@@ -4,7 +4,7 @@ var core_1 = require("@angular/core");
 // import { Sqlite } from "nativescript-sqlite";
 var sqlite = require("nativescript-sqlite");
 var location_1 = require("./location");
-var LocationDatabaseService = (function () {
+var LocationDatabaseService = /** @class */ (function () {
     function LocationDatabaseService() {
     }
     // create a table

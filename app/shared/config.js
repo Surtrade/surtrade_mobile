@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Config = (function () {
+var Config = /** @class */ (function () {
     function Config() {
     }
     // static apiUrl = "https://api.everlive.com/v1/GWfRtXi1Lwt4jcqK/";

@@ -8,7 +8,7 @@ var nativescript_geolocation_1 = require("nativescript-geolocation");
 var config_1 = require("../config");
 var location_1 = require("./location");
 var appSettings = require("application-settings");
-var LocationService = (function () {
+var LocationService = /** @class */ (function () {
     // Temporal use of a locations list in memory
     // private _locationList: Array<Location>;
     function LocationService(http) {

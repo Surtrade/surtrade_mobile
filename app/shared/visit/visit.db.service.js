@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var sqlite = require("nativescript-sqlite");
 var visit_1 = require("./visit");
-var VisitDatabaseService = (function () {
+var VisitDatabaseService = /** @class */ (function () {
     function VisitDatabaseService() {
         console.log("In Visit DB Service Constructor");
     }

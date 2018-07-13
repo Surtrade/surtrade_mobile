@@ -6,7 +6,7 @@ var Rx_1 = require("rxjs/Rx");
 var config_1 = require("../config");
 var visit_1 = require("./visit");
 var appSettings = require("application-settings");
-var VisitService = (function () {
+var VisitService = /** @class */ (function () {
     function VisitService(http) {
         this.http = http;
         console.log("In Visit Service Constructor");

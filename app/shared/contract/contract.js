@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Contract = (function () {
+var Contract = /** @class */ (function () {
     function Contract() {
         this.auto_authorize = 0;
         this.options = {};

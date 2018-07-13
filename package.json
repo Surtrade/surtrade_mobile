@@ -6,7 +6,7 @@
   "nativescript": {
     "id": "org.nativescript.surtrademobile",
     "tns-android": {
-      "version": "3.4.2"
+      "version": "4.1.3"
     }
   },
   "dependencies": {
@@ -32,11 +32,14 @@
     "zone.js": "~0.8.2"
   },
   "devDependencies": {
+    "@angular/compiler-cli": "~6.1.0-beta.3",
+    "@ngtools/webpack": "6.1.0-rc.0",
     "babel-traverse": "6.25.0",
     "babel-types": "6.25.0",
     "babylon": "6.17.4",
     "lazy": "1.0.11",
-    "nativescript-dev-typescript": "~0.5.0",
-    "typescript": "~2.4.2"
+    "nativescript-dev-typescript": "^0.7.2",
+    "nativescript-dev-webpack": "^0.14.4",
+    "typescript": "~2.7.2"
   }
 }

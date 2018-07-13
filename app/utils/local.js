@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var storage = (function () {
+var storage = /** @class */ (function () {
     function storage() {
     }
     storage.location_id = 0;

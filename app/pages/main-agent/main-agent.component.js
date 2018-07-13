@@ -10,7 +10,7 @@ var application = require("application");
 var application_1 = require("application");
 var platform_1 = require("platform");
 var appSettings = require("application-settings");
-var MainAgentComponent = (function () {
+var MainAgentComponent = /** @class */ (function () {
     function MainAgentComponent(route, router, contractService) {
         this.route = route;
         this.router = router;

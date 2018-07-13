@@ -16,7 +16,7 @@ var location_db_service_1 = require("./shared/location/location.db.service");
 var item_service_1 = require("./pages/item/item.service");
 var items_component_1 = require("./pages/item/items.component");
 var item_detail_component_1 = require("./pages/item/item-detail.component");
-var AppModule = (function () {
+var AppModule = /** @class */ (function () {
     function AppModule() {
     }
     AppModule = __decorate([

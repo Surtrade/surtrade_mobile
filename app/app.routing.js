@@ -20,7 +20,7 @@ var routes = [
     { path: "items", component: items_component_1.ItemsComponent },
     { path: "item/:id", component: item_detail_component_1.ItemDetailComponent },
 ];
-var AppRoutingModule = (function () {
+var AppRoutingModule = /** @class */ (function () {
     function AppRoutingModule() {
     }
     AppRoutingModule = __decorate([

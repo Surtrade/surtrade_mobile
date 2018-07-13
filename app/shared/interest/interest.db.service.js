@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var sqlite = require("nativescript-sqlite");
 var interest_1 = require("./interest");
-var InterestDatabaseService = (function () {
+var InterestDatabaseService = /** @class */ (function () {
     function InterestDatabaseService() {
         console.log("In Interest DB Service Constructor");
     }

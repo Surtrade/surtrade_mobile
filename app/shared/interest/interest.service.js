@@ -6,7 +6,7 @@ var Rx_1 = require("rxjs/Rx");
 var config_1 = require("../config");
 var interest_1 = require("./interest");
 var appSettings = require("application-settings");
-var InterestService = (function () {
+var InterestService = /** @class */ (function () {
     function InterestService(http) {
         this.http = http;
         console.log("In Interest Service Constructor");

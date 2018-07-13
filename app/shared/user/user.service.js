@@ -6,7 +6,7 @@ var Rx_1 = require("rxjs/Rx");
 require("rxjs/add/operator/do");
 require("rxjs/add/operator/map");
 var config_1 = require("../config");
-var UserService = (function () {
+var UserService = /** @class */ (function () {
     function UserService(http) {
         this.http = http;
     }

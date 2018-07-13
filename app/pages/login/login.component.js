@@ -12,7 +12,7 @@ var user_1 = require("../../shared/user/user");
 var user_service_1 = require("../../shared/user/user.service");
 // import { setHintColor } from "../../utils/hint-util";
 var appSettings = require("application-settings");
-var LoginComponent = (function () {
+var LoginComponent = /** @class */ (function () {
     // @ViewChild("container") container: ElementRef;
     // @ViewChild("username") username: ElementRef;
     // @ViewChild("password") password: ElementRef;
