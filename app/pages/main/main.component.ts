@@ -69,6 +69,8 @@ export class MainComponent implements OnInit{
   public isBusy = false;
   public canContract = false;
   public hasContract = false;
+  public expirationText = "";
+  public atStore = "@Flick's";
 
   // Beacon variable
   public estimote: any;
@@ -412,26 +414,32 @@ export class MainComponent implements OnInit{
       nearbyStores.forEach(store=>{
         console.log("Store identificator: "+store.identificator);
         let visit  = this.visitDatabaseService.selectVisitByBeacon(store.identificator);
+        
         // console.log("visit id: "+visit);
         // console.log("visit.id: "+visit.id);
         // console.log("visit[0]: "+visit[0]);
         // Verify if visit is being created
         if (visit != null){
-          let start = new Date(visit[3]);
-          let end = new Date(visit[4]);
+
+          this.atStore = "@"+store.name;
+          // console.log("visit constructor name: "+visit.constructor.name);
+
+          let start = new Date(visit.start);
+          let end = new Date(visit.end);
           let duration = end.getTime() - start.getTime();
           let sinceLast = new Date().getTime() - end.getTime();
-          // console.log("visit");
-          console.log("start: "+(visit.start));
-          console.log("start: "+(start.getTime()));
-          console.log("start: "+(start.toDateString()));
-          console.log("start: "+(start.toString()));
-          console.log("start: "+(this.dateFormatter(start)));
-          // console.log("end: "+ end.getTime());
-          console.log('visit duration: '+duration);
-          console.log('visit sinceLast: '+sinceLast);
+          // console.log("visit typeof: "+typeof visit);
+          // console.log("start xa.: "+(visit.start));
+          // console.log("start: "+(start.getTime()));
+          // console.log("start: "+(start.toDateString()));
+          // console.log("start: "+(start.toString()));
+          // console.log("start: "+(this.dateFormatter(start)));
+          // // console.log("end: "+ end.getTime());
+          // console.log('visit duration: '+duration);
+          // console.log('visit sinceLast: '+sinceLast);
 
-          console.log("Visit post test: "+visit);
+          // console.log("Visit post test id: "+visit.id);
+          // console.log("Visit post test beacon: "+visit.beacon);
           // this.visitService.createVisit(visit).subscribe(response => { 
           //   // this.isBusy = false;
           //   Toast.makeText("Visit Sent!").show();
@@ -444,7 +452,8 @@ export class MainComponent implements OnInit{
 
           // if last reading of store was less than 20 seconds ago
           if(sinceLast < 59000){ // update end date to current
-            this.visitDatabaseService.updateVisit(visit[0],visit[1],  visit[2] , visit[3] ,new Date(), visit[5] , visit[6] , visit[7]);
+            // this.visitDatabaseService.updateVisit(visit[0],visit[1],  visit[2] , visit[3] ,new Date(), visit[5] , visit[6] , visit[7]);
+            this.visitDatabaseService.updateVisit(visit);
             console.log("visit 'end' updated");
           }else{// if last reading of store was more than 20 seconds ago
             if(duration > 60000){ // if readings lasted more than 3 minutes , send record.. 1 min
@@ -455,53 +464,48 @@ export class MainComponent implements OnInit{
                   Toast.makeText("Visit Sent!").show();
                 },error => {
                   this.isBusy = false;
-                  alert("Error creating the contract: "+error);
+                  alert("Error sending the visit: "+error);
                   // throw new Error(error);
                 });
 
               Toast.makeText("Goodbye from "+store.name).show();
 
-              // Send finished interests
-              // let finishedInterests = this.interestDatabaseService.finishInterests(); 
-              // if (finishedInterests.length > 0){
-              //   finishedInterests.forEach(interest=>{
-              //     // send interest
-              //     console.log("Sending interest from finish interest: "+interest.beacon);
-              //     console.log("Actual implementation pending..");
+              this.verifyInterest();
+              // let interests = this.interestDatabaseService.selectInterests();
 
-              //     Toast.makeText("Interest stored.").show();
-              //     console.log("Interest stored.")
-              //   });
+              // console.log("how many intersts to finish: "+interests.length);
+              // // if there is an interest 
+              // if (interests.length > 0){
+              //     interests.forEach(interest =>{
+              //     let start = new Date(interest.start);
+              //     let end = new Date(interest.end);
+              //     let duration = end.getTime() - start.getTime();
+              //     let sinceLast = new Date().getTime() - end.getTime();
+              //     console.log("Interest xd.: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+                  
+              //     // if duration  > 1 minute then send interest
+              //     if( duration > 60000){
+              //         console.log("Sending interest b e.: "+interest.beacon)
+              //         console.log("Actual implementation pending.. work in progress..");
+              //         this.interestService.createInterest(interest).subscribe(response => { 
+              //           // this.isBusy = false;
+              //           Toast.makeText("Interest Sent!").show();
+              //         },error => {
+              //           this.isBusy = false;
+              //           alert("Error sending the interest: "+error);
+              //           // throw new Error(error);
+              //         });
+
+              //         Toast.makeText("Interest stored.").show();
+              //         console.log("Interest stored.")
+
+              //         // finishedInterests.push(interest);
+              //     }
+              //     console.log("Deleting interest due to expiring contract f.: "+interest.beacon);
+              //     this.interestDatabaseService.deleteInterest(interest.id);
+                  
+              //     });
               // }
-              // Retrive all interests (should be max 1)
-
-              let interests = this.interestDatabaseService.selectInterests();
-
-              console.log("how many intersts to finish: "+interests.length);
-              // if there is an interest 
-              if (interests.length > 0){
-                  interests.forEach(interest =>{
-                  let start = new Date(interest.start);
-                  let end = new Date(interest.end);
-                  let duration = end.getTime() - start.getTime();
-                  let sinceLast = new Date().getTime() - end.getTime();
-                  console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
-                  
-                  // if duration  > 1 minute then send interest
-                  if( duration > 60000){
-                      console.log("Sending interest b: "+interest.beacon)
-                      console.log("Actual implementation pending..");
-
-                      Toast.makeText("Interest stored.").show();
-                      console.log("Interest stored.")
-
-                      // finishedInterests.push(interest);
-                  }
-                  console.log("Deleting interest due to expiring contract: "+interest.beacon);
-                  this.interestDatabaseService.deleteInterest(interest.id);
-                  
-                  });
-              }
 
               console.log("Contract info..");
               console.log("this._contract: "+this._contract);
@@ -528,8 +532,8 @@ export class MainComponent implements OnInit{
 
             } 
             // delete record
-            console.log("Deleting visit due to less than 59 seconds: "+visit[0]);
-            this.visitDatabaseService.deleteVisit(visit[0]);
+            console.log("Deleting visit due to less than 59 seconds: "+visit.id);
+            this.visitDatabaseService.deleteVisit(visit.id);
             
           
           }
@@ -537,8 +541,11 @@ export class MainComponent implements OnInit{
           console.log("Creating new visit")
           let visitObj = new Visit(this._customer_id, store.identificator);
           visitObj.keywords=store.keywords;
+          console.log("visitObj constructor name: "+ visitObj.constructor.name);
+
           this.visitDatabaseService.insertVisit(visitObj);
-          Toast.makeText("Wellcome to "+store.name).show();
+          Toast.makeText("Welcome to "+store.name).show();
+          this.atStore = "@"+store.name;
         }
       });
     }else{
@@ -554,23 +561,29 @@ export class MainComponent implements OnInit{
           let duration = end.getTime() - start.getTime();
           let sinceLast = new Date().getTime() - end.getTime();
 
-          console.log("sinceLast: "+ sinceLast);
-          console.log("duration: "+ duration);
+          console.log("visit .: "+visit.id);
+          console.log("start x.: "+start.getTime());
+          console.log("end x.: "+end.getTime());
+          console.log("sinceLast yb.: "+ sinceLast);
+          console.log("duration yc.: "+ duration);
+          console.log("Visit xg.: "+visit.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
           // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
           if(sinceLast > 60000){
             // if duration  > 1 minute then send visit
             if( duration > 60000){
-              console.log("Sending visit b : "+visit.id)
+              console.log("Sending visit b .: "+visit)
               // console.log("Actual implementation pending..");
               this.visitService.createVisit(visit).subscribe(response => { 
                   // this.isBusy = false;
                   Toast.makeText("Visit Sent!").show();
                 },error => {
                   this.isBusy = false;
-                  alert("Error creating the contract: "+error);
+                  alert("Error sending the visit: "+error);
                   // throw new Error(error);
                 });
 
+
+              this.atStore = "";
               Toast.makeText("Goodbye!").show();
 
               // Send finished interests
@@ -586,34 +599,46 @@ export class MainComponent implements OnInit{
               //   });
               // }
 
+
+              this.verifyInterest();
               // Retrive all interests (should be max 1)
-              let interests = this.interestDatabaseService.selectInterests();
+              // let interests = this.interestDatabaseService.selectInterests();
 
-              console.log("how many intersts to finish: "+interests.length);
-              // if there is an interest 
-              if (interests.length > 0){
-                  interests.forEach(interest =>{
-                  let start = new Date(interest.start);
-                  let end = new Date(interest.end);
-                  let duration = end.getTime() - start.getTime();
-                  let sinceLast = new Date().getTime() - end.getTime();
-                  console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+              // console.log("how many intersts to finish: "+interests.length);
+              // // if there is an interest 
+              // if (interests.length > 0){
+              //     interests.forEach(interest =>{
+              //     let start = new Date(interest.start);
+              //     let end = new Date(interest.end);
+              //     let duration = end.getTime() - start.getTime();
+              //     let sinceLast = new Date().getTime() - end.getTime();
+              //     console.log("Interest xg.: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
                   
-                  // if duration  > 1 minute then send interest
-                  if( duration > 60000){
-                      console.log("Sending interest b: "+interest.beacon)
-                      console.log("Actual implementation pending..");
+              //     // if duration  > 1 minute then send interest
+              //     if( duration > 60000){
+              //         console.log("Sending interest b h.: "+interest.beacon)
+              //         console.log("Actual implementation pending.. work in progress..");
+              //         this.interestService.createInterest(interest).subscribe(response => { 
+              //           // this.isBusy = false;
+              //           Toast.makeText("Interest Sent!").show();
+              //         },error => {
+              //           this.isBusy = false;
+              //           alert("Error sending the interest: "+error);
+              //           // throw new Error(error);
+              //         });
 
-                      Toast.makeText("Interest stored.").show();
-                      console.log("Interest stored.")
+              //         Toast.makeText("Interest stored.").show();
+              //         console.log("Interest stored.")
 
-                      // finishedInterests.push(interest);
-                  }
-                  console.log("Deleting interest due to expiring contract: "+interest.beacon);
-                  this.interestDatabaseService.deleteInterest(interest.id);
+              //         // finishedInterests.push(interest);
+              //     }
+              //     console.log("Deleting interest due to expiring contract i.: "+interest.beacon);
+              //     this.interestDatabaseService.deleteInterest(interest.id);
                   
-                  });
-              }
+              //     });
+
+                  
+              // }
 
 
               console.log("Contract info..");
@@ -639,7 +664,7 @@ export class MainComponent implements OnInit{
               }
 
             }
-            console.log("Deleting visit due to more than 1 minute away: "+visit.id);
+            console.log("Deleting visit due to more than 1 minute away d.: "+visit.id);
             this.visitDatabaseService.deleteVisit(visit.id);
           }
         });
@@ -654,68 +679,128 @@ export class MainComponent implements OnInit{
     if (nearbyItems.length>0){
       nearbyItems.forEach(item=>{
         console.log("Beacon identificator: "+item.identificator);
-        let interest  = this.interestDatabaseService.selectInterestByBeacon(item.identificator);
+        let interest: Interest  = this.interestDatabaseService.selectInterestByBeacon(item.identificator);
+        // console.log("interest len: "+ interest.)
         // Verify if interest is being created
         if (interest != null){
-          let start = new Date(interest[3]);
-          let end = new Date(interest[4]);
+          let start = new Date(interest.start);
+          let end = new Date(interest.end);
           let duration = end.getTime() - start.getTime();
           let sinceLast = new Date().getTime() - end.getTime();
-          // console.log("interest");
+          console.log("interest type: "+ typeof interest);
+          console.log("interest constructor name: "+ interest.constructor.name);
+          console.log("interest instance of Interest: "+ (interest instanceof Interest));
           // console.log("start: "+(start.getTime()));
           // console.log("end: "+ end.getTime());
           console.log('interest duration: '+duration);
           console.log('interest sinceLast: '+sinceLast);
           // if last reading of item was less than 20 seconds ago
           if(sinceLast < 59000){ // update end date to current
-            this.interestDatabaseService.updateInterest(interest[0],interest[1],  interest[2] , interest[3] ,new Date(), interest[5] , interest[6] , interest[7]);
+            // this.interestDatabaseService.updateInterest(interest[0],interest[1],  interest[2] , interest[3] ,new Date(), interest[5] , interest[6] , interest[7]);
+            this.interestDatabaseService.updateInterest(interest);
             console.log("interest 'end' updated");
           }else{// if last reading of item was more than 20 seconds ago
             if(duration > 60000){ // if readings lasted more than 60 seconds, send record
-              console.log("Sending interesta : "+interest)
-              console.log("Actual implementation pending..");
+              console.log("Sending interest a : "+interest)
+              console.log("Actual implementation pending.. work in progress..");
+              this.interestService.createInterest(interest).subscribe(response => { 
+                // this.isBusy = false;
+                Toast.makeText("Interest Sent!").show();
+              },error => {
+                this.isBusy = false;
+                alert("Error sending the interest: "+error);
+                // throw new Error(error);
+              });
               Toast.makeText("Interest stored.").show();
             }
             // delete record
-            console.log("Deleting interest due to less than 20 seconds: "+interest[0]);
-            this.interestDatabaseService.deleteInterest(interest[0]);
+            console.log("Deleting interest due to less than 20 seconds: "+interest.id);
+            this.interestDatabaseService.deleteInterest(interest.id);
           
           }
         }else{
           console.log("Creating new interest")
           let interestObj = new Interest(this._customer_id, item.identificator);
           interestObj.keywords=item.keywords;
+          console.log("cId unde: "+this._customer_id);
+          console.log("iId unde: "+item.identificator);
+          console.log("interestObj constructor name: "+ interestObj.constructor.name)
           this.interestDatabaseService.insertInterest(interestObj);
           Toast.makeText("Recording interest.").show();
         }
       });
     }else{
-      // Retrive all interests (should be max 1)
-      let interests = this.interestDatabaseService.selectInterests();
+      this.verifyInterest();
+      // // Retrive all interests (should be max 1)
+      // let interests = this.interestDatabaseService.selectInterests();
 
-      console.log("how many intersts: "+interests.length);
-      // if there is an interest 
-      if (interests.length > 0){
-        interests.forEach(interest =>{
-          let start = new Date(interest.start);
-          let end = new Date(interest.end);
-          let duration = end.getTime() - start.getTime();
-          let sinceLast = new Date().getTime() - end.getTime();
-          // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
-          console.log("Interest: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
-          if(sinceLast > 60000){
-            // if duration  > 1 minute then send interest
-            if( duration > 60000){
-              console.log("Sending interest b: "+interest.beacon)
-              console.log("Actual implementation pending..");
-              Toast.makeText("Interest stored.").show();
-            }
-            console.log("Deleting interest due to more than 1 minute away: "+interest.id);
-            this.interestDatabaseService.deleteInterest(interest.id);
-          }
-        });
-      }
+      // console.log("how many intersts: "+interests.length);
+      // // if there is an interest 
+      // if (interests.length > 0){
+      //   interests.forEach(interest =>{
+      //     let start = new Date(interest.start);
+      //     let end = new Date(interest.end);
+      //     let duration = end.getTime() - start.getTime();
+      //     let sinceLast = new Date().getTime() - end.getTime();
+      //     // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+      //     console.log("Interest xa.: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+      //     if(sinceLast > 60000){
+      //       // if duration  > 1 minute then send interest
+      //       if( duration > 60000){
+      //         console.log("Sending interest b b.: "+interest.beacon)
+      //         console.log("Actual implementation pending.. work in progress..");
+      //         this.interestService.createInterest(interest).subscribe(response => { 
+      //           // this.isBusy = false;
+      //           Toast.makeText("Interest Sent!").show();
+      //         },error => {
+      //           this.isBusy = false;
+      //           alert("Error sending the interest: "+error);
+      //           // throw new Error(error);
+      //         });
+      //         Toast.makeText("Interest stored.").show();
+      //       }
+      //       console.log("Deleting interest due to more than 1 minute away c.: "+interest.id);
+      //       this.interestDatabaseService.deleteInterest(interest.id);
+      //     }
+      //   });
+      // }
     }
+  }
+
+  verifyInterest(){
+    // Retrive all interests (should be max 1)
+    let interests = this.interestDatabaseService.selectInterests();
+
+    console.log("how many intersts: "+interests.length);
+    // if there is an interest 
+    if (interests.length > 0){
+      interests.forEach(interest =>{
+        let start = new Date(interest.start);
+        let end = new Date(interest.end);
+        let duration = end.getTime() - start.getTime();
+        let sinceLast = new Date().getTime() - end.getTime();
+        // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+        console.log("Interest xa.: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+        if(sinceLast > 60000){
+          // if duration  > 1 minute then send interest
+          if( duration > 60000){
+            console.log("Sending interest b b.: "+interest.beacon)
+            console.log("Actual implementation pending.. work in progress..");
+            this.interestService.createInterest(interest).subscribe(response => { 
+              // this.isBusy = false;
+              Toast.makeText("Interest Sent!").show();
+            },error => {
+              this.isBusy = false;
+              alert("Error sending the interest: "+error);
+              // throw new Error(error);
+            });
+            Toast.makeText("Interest stored.").show();
+          }
+          console.log("Deleting interest due to more than 1 minute away c.: "+interest.id);
+          this.interestDatabaseService.deleteInterest(interest.id);
+        }
+      });
+    }  
   }
 
   verifyContract(){
@@ -731,6 +816,14 @@ export class MainComponent implements OnInit{
             this._contract = responseContract;
             this.canContract = false;
             this.hasContract = true;
+            if (this._contract.options['expire_method']=="location"){
+              this.expirationText = "Expires leaving the store.";
+            }else{
+              let dt = new Date(this._contract.expire);
+              
+              this.expirationText = "Expires at: "+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear()+" "+dt.getHours()+":"+dt.getMinutes()+":"+dt.getSeconds();
+            }
+            
             this.location_id = store.location_id;
             console.log("Active contract.");
           }
@@ -740,6 +833,9 @@ export class MainComponent implements OnInit{
             this.canContract = true;
             this.hasContract = false;
             console.log("No active Contracts.");
+
+            console.log("Visits and interests to send?");
+
           }else{
             alert("Error getting active contract information: "+error);
           }
@@ -756,6 +852,12 @@ export class MainComponent implements OnInit{
             this._contract = responseContract;
             this.canContract = false;
             this.hasContract = true;
+            if (this._contract.options['expire_method']=="location"){
+              this.expirationText = "Expires leaving the store.";
+            }else{
+              let dt = new Date(this._contract.expire);
+              this.expirationText = "Expires at: "+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear()+" "+dt.getHours()+":"+dt.getMinutes()+":"+dt.getSeconds();
+            }
             this.location_id = responseContract.location_id;
             console.log("Active contract.");
           }

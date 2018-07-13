@@ -2,9 +2,10 @@
 <GridLayout rows="auto, *, auto" columns="*">
 <!--<StackLayout>-->
   
-  <GridLayout [visibility]="hasContract ? 'visible' : 'collapsed'" row="0" columns="*, auto" class="active-contract-bar">
+  <GridLayout [visibility]="hasContract ? 'visible' : 'collapsed'" row="0" rows="* auto" columns="*, auto" class="active-contract-bar">
     <!--<Label text="Active contract" col="0"></Label>-->
-    <Label text="Active contract" col="0"></Label>
+    <Label text="Active contract" col="0" row="0"></Label>
+    <Label [text]="expirationText" col="0" row="1"></Label>
     <Label text="&#xf085;" class="fontAwesome" (tap)="contractSettings()" col="1"></Label>
     <!--<Image src="res://gear"  col="1"></Image>-->
   </GridLayout>
@@ -26,9 +27,10 @@
       </ListView>
     </StackLayout> -->
   </GridLayout>
-  <GridLayout row="2" class="logout-bar"  columns="*">
+  <GridLayout row="2" class="logout-bar"  columns="*, auto">
     <!--<Label [text]="logoutIcon" class="fontAwesome" (tap)="logout()" col="0"></Label>-->
-    <Label text="Logout &#xf08b;" class="fontAwesome" (tap)="logout()" horizontalAlignment="right"></Label>
+    <Label [text]="atStore" col="0"></Label>
+    <Label text="Logout &#xf08b;" class="fontAwesome" (tap)="logout()" horizontalAlignment="right" col="1"></Label>
     
     <!--<Label text="Logout" col="1"></Label> -->
   </GridLayout>

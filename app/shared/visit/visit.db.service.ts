@@ -30,20 +30,25 @@ export class VisitDatabaseService {
   }
   
   insertVisit(visit: Visit) {
-    console.log("Attempting to insert: "+visit.id);
+      if (visit.id == null){
+          visit.id = visit.beacon;
+      }
+    console.log("Attempting to insert visit: "+visit.id);
     new sqlite("visit.db", function(err, db) {
-        db.execSQL("INSERT INTO Visit (id,customer_id,  beacon , start ,end ,creating , active , keywords ) VALUES (?,?,?,?,?,?,?,?)", [visit.id,visit.customer_id, visit.beacon, visit.start, visit.end, visit.creating, visit.active, visit.keywords], function(err, id) {
-            console.log("The new record with id " + id+" and beacon "+visit.beacon);
+        db.execSQL("INSERT INTO Visit (id, customer_id,  beacon , start ,end ,creating , active , keywords ) VALUES (?,?,?,?,?,?,?,?)", [visit.id,visit.customer_id, visit.beacon, visit.start, visit.end, visit.creating, visit.active, visit.keywords], function(err, id) {
+            console.log("The new visit record with id " + id+" and beacon "+visit.beacon);
             return true;
         });
     });
   }
   
   // update an existing record
-  updateVisit(id,customer_id,  beacon , start ,end ,creating , active , keywords) {
+//   updateVisit(id,customer_id,  beacon , start ,end ,creating , active , keywords) {
+  updateVisit(visit:Visit) {
     new sqlite("visit.db", function(err, db) {
-        db.execSQL("UPDATE Visit SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [customer_id, beacon, start, end, creating, active, keywords, id], function(err, id) {
-            console.log("The existing record id is: " + id);
+        // db.execSQL("UPDATE Visit SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [customer_id, beacon, start, end, creating, active, keywords, id], function(err, id) {
+        db.execSQL("UPDATE Visit SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [visit.customer_id, visit.beacon, visit.start, new Date(), visit.creating, visit.active, visit.keywords, visit.id], function(err, id) {
+            console.log("The existing visit record id is: " + id);
             return true;
         });
     });
@@ -54,7 +59,7 @@ export class VisitDatabaseService {
       console.log("About to delete visit from db: "+id)
     new sqlite("visit.db", function(err, db) {
         db.execSQL("DELETE FROM Visit WHERE id = ?", [id], function(err, id) {
-            console.log("The deleted record id is: " + id);
+            console.log("The deleted visit record id is: " + id);
             return true;
         });
     });
@@ -67,7 +72,9 @@ export class VisitDatabaseService {
         db.get("SELECT * FROM Visit WHERE id = ?", [id], function(err, row) {
             // console.log("Row of data was: " + row);  // Prints [["Field1", "Field2",...]] 
             // console.log("1: "+row[1]);
-            record = row;
+            record = new Visit(row[1],row[2],row[3],row[4]);
+            record.id = row[0];
+            // record = row;
             // return row;
         });
     });
@@ -77,13 +84,20 @@ export class VisitDatabaseService {
     // select a single record
     selectVisitByBeacon(beacon): Visit {
         console.log("select beacon: "+beacon);
-        let record: Visit;
+        let record: Visit = null;
         new sqlite("visit.db", function(err, db) {
-            db.get("SELECT * FROM Visit WHERE beacon = ?", [beacon], function(err, row) {
-                // console.log("Row of data was: " + row);  // Prints [["Field1", "Field2",...]] 
-                // console.log("1: "+row[1]);
-                record = row;
-                // return row;
+            db.get("SELECT * FROM Visit WHERE beacon = ? LIMIT 1", [beacon], function(err, row) {
+                if (row!=null){
+                    console.log("Row of visit data was: " + row);  // Prints [["Field1", "Field2",...]] 
+                    // console.log("1: "+row[1]);
+                    record = new Visit(row[1],row[2],row[3],row[4]);
+                    record.id = row[0];
+                    // record = row;
+                    // return row;
+                }else{
+                    record = null;
+                }
+                
             });
         });
         console.log("record (visit):" +record);

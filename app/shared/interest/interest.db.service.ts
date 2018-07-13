@@ -30,20 +30,25 @@ export class InterestDatabaseService {
   }
   
   insertInterest(interest: Interest) {
-    console.log("Attempting to insert: "+interest.id);
+      if (interest.id == null){
+          interest.id = interest.beacon;
+      }
+    console.log("Attempting to insert interest: "+interest.id);
     new sqlite("interest.db", function(err, db) {
         db.execSQL("INSERT INTO Interest (id,customer_id,  beacon , start ,end ,creating , active , keywords ) VALUES (?,?,?,?,?,?,?,?)", [interest.id,interest.customer_id, interest.beacon, interest.start, interest.end, interest.creating, interest.active, interest.keywords], function(err, id) {
-            console.log("The new record with id " + id+" and beacon "+interest.beacon);
+            console.log("The new interest record with id " + id+" and beacon "+interest.beacon);
             return true;
         });
     });
   }
   
   // update an existing record
-  updateInterest(id,customer_id,  beacon , start ,end ,creating , active , keywords) {
+//   updateInterest(id,customer_id,  beacon , start ,end ,creating , active , keywords) {
+    updateInterest(interest: Interest){
     new sqlite("interest.db", function(err, db) {
-        db.execSQL("UPDATE Interest SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [customer_id, beacon, start, end, creating, active, keywords, id], function(err, id) {
-            console.log("The existing record id is: " + id);
+        // db.execSQL("UPDATE Interest SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [customer_id, beacon, start, end, creating, active, keywords, id], function(err, id) {
+        db.execSQL("UPDATE Interest SET customer_id = ?, beacon = ?, start = ?, end = ?, creating = ?, active = ?, keywords = ? WHERE id = ?", [interest.customer_id, interest.beacon, interest.start, new Date(), interest.creating, interest.active, interest.keywords, interest.id], function(err, id) {
+            console.log("The existing interest record id is: " + id);
             return true;
         });
     });
@@ -53,7 +58,7 @@ export class InterestDatabaseService {
   deleteInterest(id) {
     new sqlite("interest.db", function(err, db) {
         db.execSQL("DELETE FROM Interest WHERE id = ?", [id], function(err, id) {
-            console.log("The deleted record id is: " + id);
+            console.log("The deleted interest record id is: " + id);
             return true;
         });
     });
@@ -61,12 +66,14 @@ export class InterestDatabaseService {
   
   // select a single record
   selectInterest(id): Interest {
-    let record: any;
+    let record: Interest;
     new sqlite("interest.db", function(err, db) {
         db.get("SELECT * FROM Interest WHERE id = ?", [id], function(err, row) {
             // console.log("Row of data was: " + row);  // Prints [["Field1", "Field2",...]] 
             // console.log("1: "+row[1]);
-            record = row;
+            record = new Interest(row[1],row[2],row[3],row[4]);
+            record.id = row[0];
+            // record = row;
             // return row;
         });
     });
@@ -76,16 +83,24 @@ export class InterestDatabaseService {
     // select a single record
     selectInterestByBeacon(beacon): Interest {
         console.log("select beacon: "+beacon);
-        let record: any;
+        let record: Interest = null;
         new sqlite("interest.db", function(err, db) {
             db.get("SELECT * FROM Interest WHERE beacon = ?", [beacon], function(err, row) {
-                // console.log("Row of data was: " + row);  // Prints [["Field1", "Field2",...]] 
-                // console.log("1: "+row[1]);
-                record = row;
-                // return row;
+                if (row!=null){
+                    console.log("Row of interest data was: " + row);  // Prints [["Field1", "Field2",...]] 
+                    // console.log("1: "+row[1]);
+                    record = new Interest(row[1],row[2],row[3],row[4]);
+                    record.id = row[0];
+                    // record = row;
+                    // return row;
+                }else{
+                    console.log("No interest records with beacon "+beacon);
+                    record = null;
+                }
+                
             });
         });
-        console.log("record:" +record);
+        console.log("interest record:" +record);
         return record;
       }
   
@@ -95,14 +110,14 @@ export class InterestDatabaseService {
     new sqlite("interest.db", function(err, db) {
         db.all("SELECT * FROM Interest ORDER BY id", [], function(err, rs) {
           rs.forEach(element => {
-            console.log("E0: "+element[0]);
-            console.log("E1: "+element[1]);
-            console.log("E2: "+element[2]);
-            console.log("E3: "+element[3]);
-            console.log("E4: "+element[4]);
-            console.log("E5: "+element[5]);
-            console.log("E6: "+element[6]);
-            console.log("E7: "+element[7]);
+            // console.log("E0: "+element[0]);
+            // console.log("E1: "+element[1]);
+            // console.log("E2: "+element[2]);
+            // console.log("E3: "+element[3]);
+            // console.log("E4: "+element[4]);
+            // console.log("E5: "+element[5]);
+            // console.log("E6: "+element[6]);
+            // console.log("E7: "+element[7]);
             let interestObj = new Interest(element[1], element[2], element[3], element[4]);
             interestObj.id = element[0];
             interestObj.creating = element[5];

@@ -13,13 +13,14 @@ import { ContractService } from "../../shared/contract/contract.service";
 // import { LocationDatabaseService } from '../../shared/location/location.db.service';
 import { BeaconDatabaseService } from '../../shared/beacon/beacon.db.service';
 import { InterestDatabaseService } from '../../shared/interest/interest.db.service';
+import { InterestService } from "../../shared/interest/interest.service";
 
 var appSettings = require("application-settings");
 
 @Component({
     selector: "ns-contract",
     // providers: [ContractService,LocationDatabaseService],
-    providers: [ContractService, BeaconDatabaseService, InterestDatabaseService],
+    providers: [ContractService, BeaconDatabaseService, InterestDatabaseService, InterestService],
     // moduleId: module.id,
     templateUrl: "./pages/contract/contract.html",
     styleUrls:["./pages/contract/contract.css"] 
@@ -49,6 +50,7 @@ export class ContractComponent implements OnInit {
         private router: RouterExtensions,
         // private locationDatabaseService: LocationDatabaseService
         private interestDatabaseService: InterestDatabaseService,
+        private interestService: InterestService,
         private beaconDatabaseService: BeaconDatabaseService
     ) { 
       console.log("In Create contract constructor.")
@@ -216,17 +218,19 @@ export class ContractComponent implements OnInit {
       this.isBusy = true;
       console.log("expiring contract in settings");
 
-      let finishedInterests = this.interestDatabaseService.finishInterests(); 
-      if (finishedInterests.length > 0){
-        finishedInterests.forEach(interest=>{
-          // send interest
-          console.log("Sending interest from finish interest: "+interest.beacon);
-          console.log("Actual implementation pending..");
+      // let finishedInterests = this.interestDatabaseService.finishInterests(); 
+      // if (finishedInterests.length > 0){
+      //   finishedInterests.forEach(interest=>{
+      //     // send interest
+      //     console.log("Sending interest from finish interest: "+interest.beacon);
+      //     console.log("Actual implementation pending..");
 
-          Toast.makeText("Interest stored.").show();
-          console.log("Interest stored.")
-        });
-      }
+      //     Toast.makeText("Interest stored.").show();
+      //     console.log("Interest stored.")
+      //   });
+      // }
+
+      this.verifyInterest();
 
       // // Retrive all interests (should be max 1)
       // let interests = this.interestDatabaseService.selectInterests();
@@ -267,6 +271,42 @@ export class ContractComponent implements OnInit {
           this.isBusy = false;
           this.goMain();
         });
+    }
+
+    verifyInterest(){
+      // Retrive all interests (should be max 1)
+      let interests = this.interestDatabaseService.selectInterests();
+  
+      console.log("how many intersts cc.: "+interests.length);
+      // if there is an interest 
+      if (interests.length > 0){
+        interests.forEach(interest =>{
+          let start = new Date(interest.start);
+          let end = new Date(interest.end);
+          let duration = end.getTime() - start.getTime();
+          let sinceLast = new Date().getTime() - end.getTime();
+          // if sinceLast > 60 seconds <- this is crucial for knowing if it is away
+          console.log("Interest cc.: "+interest.beacon+", sinceLast: "+sinceLast+", duration: "+duration);
+          if(sinceLast > 60000){
+            // if duration  > 1 minute then send interest
+            if( duration > 60000){
+              console.log("Sending interest cc.: "+interest.beacon)
+              console.log("Actual implementation pending.. work in progress..");
+              this.interestService.createInterest(interest).subscribe(response => { 
+                // this.isBusy = false;
+                Toast.makeText("Interest Sent!  cc.").show();
+              },error => {
+                this.isBusy = false;
+                alert("Error sending the interest: "+error);
+                // throw new Error(error);
+              });
+              Toast.makeText("Interest stored.").show();
+            }
+            console.log("Deleting interest due to more than 1 minute away cc.: "+interest.id);
+            this.interestDatabaseService.deleteInterest(interest.id);
+          }
+        });
+      }  
     }
 
     // verifyBehaviour(){

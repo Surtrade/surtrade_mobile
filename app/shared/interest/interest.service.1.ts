@@ -44,34 +44,30 @@ export class InterestService {
     .catch(this.handleErrors);
   }
 
-  dateFormatter(date: Date){
-    return date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
-  }
-
-  createInterest(interest: Interest){
+  createInterst(interest: Interest){
     let headers = new Headers();
     headers.append("Content-Type", "application/json");
-    headers.append("Authorization", "Bearer " + Config.token);
-    
-    console.log("creating interest: "+typeof interest);
-    console.log("creating interest for beacon: "+interest.beacon);
-    console.log("creating interest for beacon []: "+interest[2]);
-    console.log("formatted end: "+this.dateFormatter(new Date(interest.end)));
 
-    let data = {
-      customer_id: interest.customer_id,
-      beacon: interest.beacon,
-      start: this.dateFormatter(new Date(interest.start)),
-      end: this.dateFormatter(new Date(interest.end)),
-      creating: interest.creating,
-      active: interest.active,
-      keywords: interest.keywords
-    };
-
+    // console.log("url: "+Config.apiUrl + "auth/register");
+    // console.log("JSON: "+ JSON.stringify({
+    //     username: user.username,
+    //     password: user.password,
+    //     email: user.username,
+    //     name: user.username,
+    //     role: "Customer"
+    //   }));
 
     return this.http.post(
       Config.apiUrl + "interests",
-      JSON.stringify(data),
+      JSON.stringify({
+        customer_id: interest.customer_id,
+        beacon: interest.beacon,
+        start: interest.start,
+        end: interest.end,
+        creating: interest.creating,
+        active: interest.active,
+        keywords: interest.keywords
+      }),
       { headers: headers }
     )
     .catch(this.handleErrors);
