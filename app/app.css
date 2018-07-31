@@ -20,12 +20,13 @@ Page {
   font-size: 13;
 }*/
 
-StackLayout {
+/* StackLayout {
   margin-left: 20;
   margin-right: 20;
   padding-bottom: 16;
   background-color: white;
-}
+} */
+
 Image {
   margin-top: 5;
   margin-bottom: 20;
@@ -41,6 +42,11 @@ Button, TextField {
 
 Botton:highlighted{
   background-color: white;
+}
+
+.center{
+  position: relative; 
+  left: -50%;
 }
 
 /*Buttons*/
@@ -88,12 +94,13 @@ Botton:highlighted{
 .title2 {
   font-size: 25px;
   text-align: left;
-  padding-left: 10;
+  padding: 10;
+
 }
 .title3 {
   font-size: 20px;
   text-align: left;
-  padding-left: 20;
+  padding: 10;
 }
 
 .itemList{
@@ -102,9 +109,36 @@ Botton:highlighted{
   padding: 20;
 }
 .itemList2{
+  font-size: 15px;
+  text-align: left;
+  padding: 5;
+}
+.itemListTitle{
+  font-size: 25px;
+  text-align: left;
+  padding: 5;
+}
+.itemListRemark{
   font-size: 20px;
   text-align: left;
-  padding-left: 20;
+  padding: 5;
+  color: gray;
+  /* text-decoration: underline; */
+  font-style: italic;
+}
+
+.itemImageProduct{
+  padding-left:10;
+  width:120;
+  height:130;
+}
+.storeIcon{
+  font-size: 30;
+  padding: 5;
+  width: 50;
+}
+.list-group-item{
+  width: 50;
 }
 
 .small-spacing {

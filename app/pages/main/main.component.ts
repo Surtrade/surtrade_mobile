@@ -4,6 +4,7 @@ import { Page } from "tns-core-modules/ui/page";
 import { ActivatedRoute } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
 import { Location as LocationCommon } from "@angular/common";
+import { openUrl } from "utils/utils";
 
 import { User } from "../../shared/user/user";
 import { Location } from "../../shared/location/location";
@@ -19,6 +20,19 @@ import { BeaconService } from "../../shared/beacon/beacon.service";
 import { BeaconDatabaseService } from "../../shared/beacon/beacon.db.service";
 import { ContractService } from "../../shared/contract/contract.service";
 
+import { Shelf, Product, ProductsByRemark } from "../../shared/shelf/shelf";
+import { ShelfService } from "../../shared/shelf/shelf.service";
+
+// import { CFAlertDialogHelper } from "../../helpers/cfalertdialog-helper";
+import {
+  CFAlertDialog,
+  DialogOptions,
+  CFAlertActionAlignment,
+  CFAlertActionStyle,
+  CFAlertStyle
+} from "nativescript-cfalert-dialog";
+let cfalertDialog = new CFAlertDialog();
+
 import * as application from 'application';
 import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
 import { isAndroid } from "platform";
@@ -28,6 +42,7 @@ import { Interest } from "../../shared/interest/interest";
 
 import * as Toast from 'nativescript-toast';
 
+
 // import { storage } from "../../utils/local";
 var appSettings = require("application-settings");
 
@@ -35,10 +50,11 @@ var appSettings = require("application-settings");
 var Estimote = require("nativescript-estimote-sdk");
 import * as Permissions from "nativescript-permissions";
 declare var android: any;
+ 
 
 @Component({
     selector: "main",
-    providers: [BeaconService, BeaconDatabaseService, VisitService, VisitDatabaseService, InterestService, InterestDatabaseService, ContractService],
+    providers: [ BeaconService, BeaconDatabaseService, VisitService, VisitDatabaseService, InterestService, InterestDatabaseService, ContractService, ShelfService],
     // providers: [LocationService, LocationDatabaseService, ContractService], 
     // providers: [LocationService, ContractService],
     templateUrl: "pages/main/main.html",
@@ -62,6 +78,10 @@ export class MainComponent implements OnInit{
   // public variables
   public title: string;
 
+  // alert
+  // public cfalertDialogHelper:  CFAlertDialogHelper;
+  private cfalertDialog: CFAlertDialog;
+
   // button flags
   // public inLocation = false;
   public isCurrentLocation = false;
@@ -70,7 +90,19 @@ export class MainComponent implements OnInit{
   public canContract = false;
   public hasContract = false;
   public expirationText = "";
-  public atStore = "@Flick's";
+  public atStore = "@Street";
+  public shelfInfo = false;
+  public shelfInfoSeen = [];
+  // public container: Shelf;
+  // public containerProducts: Product[];
+  public containerProductsR: Product[];
+  public containerProductsO: Product[];
+  // public productsByRemarkList: ProductsByRemark[];
+  // public remarks = [];
+  public storeIcons = [
+    {"icon":String.fromCharCode(0xf085),"color":"red"},
+    {"icon":String.fromCharCode(0xf08b),"color":"blue"}
+  ];
 
   // Beacon variable
   public estimote: any;
@@ -97,7 +129,9 @@ export class MainComponent implements OnInit{
     private router: RouterExtensions,
     private locationCommon: LocationCommon,
     private zone: NgZone,
-    private page: Page
+    private page: Page,
+    private shelfService: ShelfService,
+    // private cfalertDialog: CFAlertDialog
   ){
       console.log("Main Constructor");
       // this.isBusy = true;
@@ -110,6 +144,9 @@ export class MainComponent implements OnInit{
       // this.estimote = new Estimote(options);
       this.currentBeacons = [];
       // this.permissions = new Permissions();
+
+      // this.cfalertDialogHelper = new CFAlertDialogHelper();
+      this.cfalertDialog = new CFAlertDialog();
   }
 
   ngOnInit() {
@@ -168,10 +205,14 @@ export class MainComponent implements OnInit{
           // Check if user is in store or just passing by
           console.log("*************************");
           this.verifyVisit();
-          
 
+          console.log(".........................");
+          if(typeof this._contract !== "undefined" && typeof this._contract.options['shelf_info'] !== "undefined" && this._contract.options['shelf_info']){
+            this.verifyShelfInfo();
+          }else{
+            this.shelfInfoSeen = [];
+          }
 
-          
 
           // Check if behaviour tracking is enabled and track
           if( typeof this._contract !== "undefined" && typeof this._contract.options['behaviour_tracking'] !== "undefined" && this._contract.options['behaviour_tracking']){
@@ -264,8 +305,8 @@ export class MainComponent implements OnInit{
   }
 
   public contractSettings(){
-    // this.router.navigate(["/contractcreate/"+this._current_location.id+"/1"], {
-    this.router.navigate(["/contractcreate",this.location_id,1], {
+    // this.router.navigate(["/contract-create/"+this._current_location.id+"/1"], {
+    this.router.navigate(["/contract-create",this.location_id,1], {
       // animation: true,
       transition: {
           name: "slideLeft",
@@ -294,7 +335,7 @@ export class MainComponent implements OnInit{
       stores.forEach(store => { 
         if(store.name == name){
           console.log("Going to create contract.");
-          this.router.navigate(["/contractcreate",store.location_id,0], {
+          this.router.navigate(["/contract-create",store.location_id,0], {
             // animation: true,
             transition: {
                 name: "slideLeft",
@@ -407,6 +448,31 @@ export class MainComponent implements OnInit{
     return date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
   }
 
+  verifyShelfInfo(){
+    // console.log("Verifying shelf info..");
+    let nearbyItems = this.nearbyItems();
+    // console.log("Shelfs nearby: "+nearbyItems.length);
+    if (nearbyItems.length>0){
+      
+      // console.log("Shelfs seen: "+this.shelfInfoSeen );
+      nearbyItems.forEach(item=>{
+        // console.log("Shelf: "+item.identificator);
+        // console.log("Shelf index: "+this.shelfInfoSeen.indexOf(item.identificator));
+        if (this.shelfInfoSeen.indexOf(item.identificator)==-1){
+          // console.log("Shelf info available!");
+          
+          this.shelfInfoSeen.push(item.identificator);
+
+          // if (this.cfalertDialogHelper.showBottomSheet(item.identificator)){
+          //   console.log("Displaying shelf info!");
+          //   alert("Going to Shelf info!");
+          // }
+          this.showBottomSheet(item.identificator);
+        }
+      });
+    }
+  }
+
   verifyVisit(){
     let nearbyStores = this.nearbyStores();
     console.log("Nearby stores: "+nearbyStores.length)
@@ -420,6 +486,8 @@ export class MainComponent implements OnInit{
         // console.log("visit[0]: "+visit[0]);
         // Verify if visit is being created
         if (visit != null){
+
+          this.verifyStoreItems(store.identificator);
 
           this.atStore = "@"+store.name;
           // console.log("visit constructor name: "+visit.constructor.name);
@@ -584,6 +652,9 @@ export class MainComponent implements OnInit{
 
 
               this.atStore = "";
+              this.containerProductsO = [];
+              this.containerProductsR = [];
+
               Toast.makeText("Goodbye!").show();
 
               // Send finished interests
@@ -670,6 +741,88 @@ export class MainComponent implements OnInit{
         });
       }
     }
+  }
+
+  public verifyStoreItems(beacon){
+    // alert("Store: "+beacon);
+    this.shelfService.getShelf(beacon)
+        .subscribe(responseShelf => {
+          if (!responseShelf.message){
+            // this.container = new Shelf(responseShelf.code, responseShelf.beacon);
+            // this.container.keywords = responseShelf.keywords;
+
+            let productsR = [];
+            let productsO = [];
+
+            responseShelf.products.forEach(product => {
+                let productObj = new Product(product.code, product.name,product.description);
+                productObj.keywords = product.keywords;
+                productObj.image = product.image;
+                productObj.video = product.video;
+                productObj.remark = product.remark;
+                // products.push(productObj);
+
+                if (product.remark == 'offer'){
+                  productsO.push(product);
+                }else{
+                  productsR.push(product);
+                }
+
+                // if(this.remarks.indexOf(product.remark)==-1){
+                //   this.remarks.push(product.remark);
+                // }
+
+                // if (this.remarks.indexOf(product.remark)==-1){
+                //   this.remarks.push(product.remark);
+
+                //   this.productsByRemarkList.push( new ProductsByRemark(product.remark));
+                //   this.productsByRemarkList.indexOf
+
+                // }
+
+                // if(this.productsByRemarkList.)
+            });
+
+            // this.container.products = products;
+            // this.containerProducts = products;
+            // this.productsByRemarkList.push()
+        
+            this.containerProductsO = productsO;
+            this.containerProductsR = productsR;
+            
+
+            // console.log("~~~~~~~~~~~~~~~~")
+            // console.log("code: "+this.shelf.code);
+            // console.log("beacon: "+this.shelf.beacon);
+            // console.log("kewords"+this.shelf.keywords);
+            // console.log("products: "+this.shelf.products.length);
+            // this.shelf.products.forEach(product => {
+            //   console.log("code: "+product.code);
+            //   console.log("name: "+product.name);
+            //   console.log("description: "+product.description);
+            //   console.log("keywords: "+product.keywords);
+            //   console.log("image: "+product.image);
+            //   console.log("video: "+product.video);
+            // });
+
+            // this.shelfTitle = this.shelf.code;
+
+            // console.log("~ ~ ~ ~ ~ ~ ~ ~ ~")
+
+          }else{
+            console.log("message:"+responseShelf.message);
+            // alert("Contract expired.");
+            // this.goMain();
+          }
+        },error => {
+          console.log("error in shelf component");
+          if (error.status == 401){
+            alert("No available information for this Shelf.");
+          }else if (error.status != 404){
+            alert("Error getting shelf by beacon information: "+error);
+          }
+          // this.goMain();
+        });
   }
 
   verifyBehavior(){
@@ -803,7 +956,7 @@ export class MainComponent implements OnInit{
     }  
   }
 
-  verifyContract(){
+  verifyContract2(){
     console.log("Verifying contracts..");
     // this.isBusy = true;
     let nearbyStores = this.nearbyStores();
@@ -823,6 +976,12 @@ export class MainComponent implements OnInit{
               
               this.expirationText = "Expires at: "+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear()+" "+dt.getHours()+":"+dt.getMinutes()+":"+dt.getSeconds();
             }
+
+            if (this._contract.options['shelf_info']=="true"){
+              this.shelfInfo = true;
+            }else{
+              this.shelfInfo = false; 
+            }
             
             this.location_id = store.location_id;
             console.log("Active contract.");
@@ -832,6 +991,7 @@ export class MainComponent implements OnInit{
           if (error.status == 404){
             this.canContract = true;
             this.hasContract = false;
+            this.shelfInfo = false;
             console.log("No active Contracts.");
 
             console.log("Visits and interests to send?");
@@ -858,6 +1018,11 @@ export class MainComponent implements OnInit{
               let dt = new Date(this._contract.expire);
               this.expirationText = "Expires at: "+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear()+" "+dt.getHours()+":"+dt.getMinutes()+":"+dt.getSeconds();
             }
+            if (this._contract.options['shelf_info']=="true"){
+              this.shelfInfo = true;
+            }else{
+              this.shelfInfo = false; 
+            }
             this.location_id = responseContract.location_id;
             console.log("Active contract.");
           }
@@ -869,6 +1034,7 @@ export class MainComponent implements OnInit{
           if (error.status == 404){
             this.canContract = true;
             this.hasContract = false;
+            this.shelfInfo = false;
             console.log("No active Contracts.");
           }else{
             alert("Error getting active contract information: "+error);
@@ -876,6 +1042,44 @@ export class MainComponent implements OnInit{
           this.isBusy = false;  
         });
     }
+  }
+  verifyContract(){
+    console.log("New verification of contracts..");
+    this.contractService.getActiveContract( this._customer_id )
+        .subscribe(responseContract => {
+          if (!responseContract.message){
+            this._contract = responseContract;
+            this.canContract = false;
+            this.hasContract = true;
+            if (this._contract.options['expire_method']=="location"){
+              this.expirationText = "Expires leaving the store.";
+            }else{
+              let dt = new Date(this._contract.expire);
+              this.expirationText = "Expires at: "+dt.getDate()+"/"+dt.getMonth()+"/"+dt.getFullYear()+" "+dt.getHours()+":"+dt.getMinutes()+":"+dt.getSeconds();
+            }
+            if (this._contract.options['shelf_info']=="true"){
+              this.shelfInfo = true;
+            }else{
+              this.shelfInfo = false; 
+            }
+            this.location_id = responseContract.location_id;
+            console.log("Active contract.");
+          }
+          else{
+            console.log("contract but no message")
+          }
+          this.isBusy = false;
+        },error => {
+          if (error.status == 404){
+            this.canContract = true;
+            this.hasContract = false;
+            this.shelfInfo = false;
+            console.log("No active Contracts.");
+          }else{
+            alert("Error getting active contract information: "+error);
+          }
+          this.isBusy = false;  
+        });
   }
 
   // Location refactor
@@ -978,5 +1182,53 @@ export class MainComponent implements OnInit{
         this.isBusy = false;
         alert(error);
       });
+  }
+
+  showBottomSheet(beacon:string, title:string = "Your selection:"): void {
+
+    const onSelection = response => {
+      console.log("The response for shelf was: "+response);
+      if (response == "Okay"){
+        // alert({
+        //   title: title,
+        //   message: response,
+        //   okButtonText: "Go"
+        // });
+        console.log("Going to shelf-info");
+        this.router.navigate(["/shelf-info",beacon], {
+          // animation: true,
+          transition: {
+              name: "slideLeft",
+              duration: 200,
+              curve: "linear"
+          }
+        });
+      }
+      
+    };
+
+    const options: DialogOptions = {
+      dialogStyle: CFAlertStyle.BOTTOM_SHEET,
+      title: "Information available!",
+      message: "Would you like to know more about "+beacon+"?",
+      buttons: [
+        {
+          text: "Okay",
+          buttonStyle: CFAlertActionStyle.POSITIVE,
+          buttonAlignment: CFAlertActionAlignment.JUSTIFIED,
+          onClick: onSelection
+        },
+        {
+          text: "Nope",
+          buttonStyle: CFAlertActionStyle.NEGATIVE,
+          buttonAlignment: CFAlertActionAlignment.JUSTIFIED,
+          onClick: onSelection
+        }]
+    };
+    this.cfalertDialog.show(options);
+
+  }
+  public playVideo(video){
+    openUrl(video);
   }
 }

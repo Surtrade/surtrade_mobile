@@ -1,6 +1,6 @@
 <ActionBar title="Surtrade" class="action-bar"></ActionBar>
-<GridLayout rows="auto, *, auto" columns="*">
-<!--<StackLayout>-->
+<GridLayout rows="auto, *,auto, auto" columns="*">
+<!-- <StackLayout backgroundColor="yellow"> -->
   
   <GridLayout [visibility]="hasContract ? 'visible' : 'collapsed'" row="0" rows="* auto" columns="*, auto" class="active-contract-bar">
     <!--<Label text="Active contract" col="0"></Label>-->
@@ -9,24 +9,81 @@
     <Label text="&#xf085;" class="fontAwesome" (tap)="contractSettings()" col="1"></Label>
     <!--<Image src="res://gear"  col="1"></Image>-->
   </GridLayout>
-  <GridLayout row="1">
-    <StackLayout>
+
+  <!-- <ScrollView row="1"> -->
+  <StackLayout row="1">
       <Label [text]="title" class="title"></Label>
       <!-- <Button text="Update Location DB" [isEnabled]="isBusy ? 'false' : 'true'" [class]="isBusy ? 'disabled-button' : 'location-button'" (tap)="updateLocationDatabase()"></Button>
       <Button text="Show Locations in DB" [isEnabled]="isBusy ? 'false' : 'true'" [class]="isBusy ? 'disabled-button' : 'location-button'" (tap)="showLocationsInDatabase()"></Button> -->
-    
-      <Button [visibility]="canContract ? 'visible' : 'collapsed'" text="Create Contract  &#xf2b5;" [class]="isBusy ? 'disabled-button fontAwesome' : 'contract-button fontAwesome'" (tap)="createContract()">
-      </Button>
-      
-    </StackLayout>
-    <!-- <StackLayout>
-      <ListView [items]="currentBeacons" class="list-group">
-          <ng-template let-item="item">
-              <Label [text]="item.id" class="list-group-item"></Label>
+     
+      <StackLayout [visibility]="atStore!='@Street' ? 'visible' : 'collapsed'" >
+        
+        <!-- <ScrollView orientation="horizontal"> -->
+        <!-- <ListView [items]="storeIcons" separatorColor="transparent" class="list-group" backgroundColor="lightgray">
+          <ng-template let-itemi="item" backgroundColor="purple">
+            <StackLayout class="list-group-item" horizontalAlignment="center" orientation="horizontal">
+                <Label [text]="itemi.icon" class="fontAwesome storeIcon"  [color]="itemi.color" backgroundColor="yellow" horizontalAlignment="center"></Label>
+            </StackLayout>
           </ng-template>
-      </ListView>
-    </StackLayout> -->
-  </GridLayout>
+        </ListView> -->
+        
+        <!-- <ListView [items]="storeIcons" separatorColor="transparent" class="list-group" backgroundColor="lightgray">
+            <ng-template let-itemi="item" tkListItemTemplate backgroundColor="purple">
+              <StackLayout horizontalAlignment="center" orientation="horizontal" backgroundColor="black" float="right">
+                <Label [text]="itemi.icon" class="fontAwesome storeIcon"  [color]="itemi.color" backgroundColor="yellow" float="right"></Label>
+              </StackLayout>
+          </ng-template>
+        </ListView> -->
+      
+        <StackLayout horizontalAlignment="center" orientation="horizontal">
+            <Label text="&#xf0f4;" class="fontAwesome storeIcon"  color="#00a3aa" ></Label>
+            <Label text="&#xf291;" class="fontAwesome storeIcon"  color="#a7cbeb" ></Label>
+            <Label text="&#xf295;" class="fontAwesome storeIcon"  color="#ffa500" ></Label>
+        </StackLayout>
+        <!-- </ScrollView> -->
+
+        <!-- <ScrollView> -->
+        <StackLayout>
+          <ScrollView [visibility]="hasContract ? 'visible' : 'collapsed'">
+          <StackLayout background-color="#fff9d5">
+            <Label text="Recommended for you:" class="itemListRemark"></Label>
+            <ListView [items]="containerProductsR" class="list-group">
+              <ng-template let-itemr="item" >
+                  <GridLayout rows="auto, *, *" columns="auto, auto, *" (tap)="playVideo(itemr.video)">
+                      <Image [src]="itemr.image"  verticalAlignment="top" class="itemImageProduct" row="0" col="0" rowSpan="3" ></Image>
+                      <Label [text]="itemr.name" class="itemListTitle" row="0" col="1" textWrap="true"></Label>
+                      <Label [text]="itemr.description" class="itemList2" row="1" col="1" colSpan="2" textWrap="true" ></Label>
+                      <Label [visibility]="itemr.video!='None' ? 'visible' : 'collapsed'" text="Video available!" class="itemList2" row="2" col="1" textWrap="true" color="red"></Label>
+                  </GridLayout>
+              </ng-template>
+            </ListView>
+          </StackLayout>
+          </ScrollView>
+
+          <ScrollView>
+          <StackLayout background-color="#ffebd5">
+            <Label text="Offers in the store:" class="itemListRemark"></Label>
+            <ListView [items]="containerProductsO" class="list-group">
+              <ng-template let-itemo="item" >
+                  <GridLayout rows="auto, *, *" columns="auto, auto, *" (tap)="playVideo(itemo.video)">
+                      <Image [src]="itemo.image"  verticalAlignment="top" class="itemImageProduct" row="0" col="0" rowSpan="3" ></Image>
+                      <Label [text]="itemo.name" class="itemListTitle" row="0" col="1" textWrap="true"></Label>
+                      <Label [text]="itemo.description" class="itemList2" row="1" col="1" colSpan="2" textWrap="true" ></Label>
+                      <Label [visibility]="itemo.video!='None' ? 'visible' : 'collapsed'" text="Video available!" class="itemList2" row="2" col="1" textWrap="true" color="red"></Label>
+                  </GridLayout>
+              </ng-template>
+            </ListView>
+          </StackLayout>
+          </ScrollView>
+
+        </StackLayout>
+        <!-- </ScrollView> -->
+      </StackLayout>
+    <Button [visibility]="canContract ? 'visible' : 'collapsed'" text="Create Contract  &#xf2b5;" [class]="isBusy ? 'disabled-button fontAwesome' : 'contract-button fontAwesome'" (tap)="createContract()"></Button>
+      
+  </StackLayout>
+  <!-- </ScrollView> -->
+
   <GridLayout row="2" class="logout-bar"  columns="*, auto">
     <!--<Label [text]="logoutIcon" class="fontAwesome" (tap)="logout()" col="0"></Label>-->
     <Label [text]="atStore" col="0"></Label>
@@ -34,6 +91,6 @@
     
     <!--<Label text="Logout" col="1"></Label> -->
   </GridLayout>
-  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="1" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
-<!--</StackLayout>-->
+  <ActivityIndicator [busy]="isBusy" [visibility]="isBusy ? 'visible' : 'collapse'" row="3" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
+<!-- </StackLayout> -->
 </GridLayout>

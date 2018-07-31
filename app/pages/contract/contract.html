@@ -9,6 +9,10 @@
         <Switch [checked]="aac" (checkedChange)="autoauthorizeEvent($event)" col="1"></Switch>
       </GridLayout>
       <GridLayout rows="auto" class="form-row"> 
+        <Label  text="Shelf Information" textWrap="true" col="0"></Label>
+        <Switch [checked]="shi" (checkedChange)="shelfInfoEvent($event)" col="1"></Switch>
+      </GridLayout>
+      <GridLayout rows="auto" class="form-row"> 
         <Label  text="Behaviour Tracking" textWrap="true" col="0"></Label>
         <Switch [checked]="bht" (checkedChange)="behaviourTrackingEvent($event)" col="1"></Switch>
       </GridLayout>

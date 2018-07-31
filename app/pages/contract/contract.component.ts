@@ -14,6 +14,7 @@ import { ContractService } from "../../shared/contract/contract.service";
 import { BeaconDatabaseService } from '../../shared/beacon/beacon.db.service';
 import { InterestDatabaseService } from '../../shared/interest/interest.db.service';
 import { InterestService } from "../../shared/interest/interest.service";
+import { shimHostAttribute } from "../../../node_modules/@angular/platform-browser/src/dom/dom_renderer";
 
 var appSettings = require("application-settings");
 
@@ -34,10 +35,12 @@ export class ContractComponent implements OnInit {
     expireByTime: string;
     autoauthorize: string;
     behaviourTracking: string;
+    shelfInfo: string;
 
     public aac: boolean;
     public etc: boolean;
     public bht: boolean;
+    public shi: boolean;
     public title: string = "Welcome to Narnia";
 
 
@@ -60,6 +63,9 @@ export class ContractComponent implements OnInit {
       this.aac = true;  
       this.behaviourTracking = "ON";
       this.bht = true; 
+      this.shelfInfo = "ON";
+      this.shi = true;
+
        
        
       //  this._contract = null;
@@ -112,12 +118,16 @@ export class ContractComponent implements OnInit {
                 this.etc = true;
               }
 
-              // alert(responseContract.options.behaviour_tracking);
               if(responseContract.options.behaviour_tracking == false){
                 this.behaviourTracking = "OFF";
                 this.bht = false;
               }
-              // alert(responseContract.options.behaviour_tracking);
+
+              if(responseContract.options.shelf_info == false){
+                this.shelfInfo = "OFF";
+                this.shi = false;
+              }
+
             }else{
               console.log("message:"+responseContract.message);
               // alert("Contract expired.");
@@ -160,9 +170,17 @@ export class ContractComponent implements OnInit {
           this.behaviourTracking = "ON";
       } else {
           this.behaviourTracking = "OFF";
-          // alert("off");
       }
-  }
+    }
+
+    public shelfInfoEvent(args) {
+      let switchBox = <Switch>args.object;
+      if (switchBox.checked) {
+          this.shelfInfo = "ON";
+      } else {
+          this.shelfInfo = "OFF";
+      }
+    }
 
     createContract(){
       this.isBusy = true;
@@ -174,7 +192,8 @@ export class ContractComponent implements OnInit {
       
       let options = {
         "expire_method":"",
-        "behaviour_tracking":true
+        "behaviour_tracking":true,
+        "shelf_info":true
       };
 
       let expire_method = "location";
@@ -187,10 +206,15 @@ export class ContractComponent implements OnInit {
       if(this.behaviourTracking == "OFF"){
         
         behaviour_tracking = false;
-        // alert('it is off');
       }
       options.behaviour_tracking = behaviour_tracking;
-      // alert(options.behaviour_tracking)
+
+      let shelf_info = true;
+      if(this.shelfInfo == "OFF"){
+        
+        shelf_info = false;
+      }
+      options.shelf_info = shelf_info;
       
       let contractData={
         "location_id": this._location_id,
@@ -199,7 +223,7 @@ export class ContractComponent implements OnInit {
         "expire": this.minutes,
         "options": options
       };
-      // alert(contractData.options.behaviour_tracking)
+      
       this.contractService.createContract(contractData)
       .subscribe(response => { 
         this.isBusy = false;

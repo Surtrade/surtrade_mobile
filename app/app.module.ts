@@ -11,6 +11,7 @@ import { MainAgentComponent } from "./pages/main-agent/main-agent.component";
 import { CustomerDetailsComponent } from './pages/customer-details/customer-details.component';
 import { ContractComponent } from "./pages/contract/contract.component";
 // import { ContractSettingsComponent } from "./pages/contract/contract-settings";
+import { ShelfComponent } from "./pages/shelf/shelf.component";
 
 import { LocationDatabaseService } from "./shared/location/location.db.service";
 
@@ -36,6 +37,7 @@ import { ItemDetailComponent } from "./pages/item/item-detail.component";
       CustomerDetailsComponent,
       ContractComponent,
       // ContractSettingsComponent,
+      ShelfComponent,
       ItemsComponent,
       ItemDetailComponent
     ],

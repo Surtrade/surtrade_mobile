@@ -8,6 +8,7 @@ import { MainAgentComponent } from "./pages/main-agent/main-agent.component";
 import { CustomerDetailsComponent } from './pages/customer-details/customer-details.component';
 import { ContractComponent } from "./pages/contract/contract.component";
 // import { ContractSettingsComponent } from "./pages/contract/contract-settings";
+import { ShelfComponent } from "./pages/shelf/shelf.component"; 
 
 import { ItemsComponent } from "./pages/item/items.component";
 import { ItemDetailComponent } from "./pages/item/item-detail.component";
@@ -17,8 +18,9 @@ const routes: Routes = [
     { path: "main", component: MainComponent },
     { path: "main-agent", component: MainAgentComponent },
     { path: "customer-details/:customer_id", component: CustomerDetailsComponent },
-    { path: "contractcreate/:location_id/:settings", component: ContractComponent },
+    { path: "contract-create/:location_id/:settings", component: ContractComponent },
     // { path: "contractsettings/:id", component:  ContractSettingsComponent },
+    { path: "shelf-info/:beacon", component: ShelfComponent },
 
     { path: "items", component: ItemsComponent },
     { path: "item/:id", component: ItemDetailComponent },

@@ -20,6 +20,7 @@
     "@angular/router": "~4.2.0",
     "nativescript": "^4.0.0",
     "nativescript-angular": "~4.2.0",
+    "nativescript-cfalert-dialog": "^1.0.8",
     "nativescript-estimote-sdk": "^1.0.3",
     "nativescript-geolocation": "^4.2.3",
     "nativescript-permissions": "^1.2.3",
